@@ -1,4 +1,4 @@
-# sublimacion
+# sublimation-project
 
 An Electron application with React
 
