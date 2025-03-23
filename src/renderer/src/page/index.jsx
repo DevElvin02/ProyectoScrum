@@ -5,6 +5,7 @@ import { LayoutDashboard, Users, Package, ShoppingCart, Menu, X } from 'lucide-r
 import ClientesPage from './clientes'
 import ProductosPage from './productos'
 import PedidosPage from './pedidos'
+import ResumenPage from './resumen/ResumenPage'
 
 export default function Main() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -72,7 +73,7 @@ export default function Main() {
       <div className="flex-1 overflow-auto">
         <div className="p-6">
           <Routes>
-            <Route path="/" element={<div>Resumen</div>} />
+          <Route path="/" element={<ResumenPage />} /> {/* Cambiar esto */}
             <Route path="/clientes" element={<ClientesPage />} />
             <Route path="/productos" element={<ProductosPage />} />
             <Route path="/pedidos" element={<PedidosPage />} />

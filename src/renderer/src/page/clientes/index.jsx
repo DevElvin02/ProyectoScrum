@@ -42,7 +42,8 @@ export default function Clientes() {
   const clientesFiltrados = clientes.filter(
     (cliente) =>
       cliente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      cliente.email.toLowerCase().includes(busqueda.toLowerCase()),
+      cliente.email.toLowerCase().includes(busqueda.toLowerCase()) ||
+      cliente.telefono.toLowerCase().includes(busqueda.toLowerCase()) // Añadida búsqueda por teléfono
   )
 
   const handleNuevoCliente = () => {

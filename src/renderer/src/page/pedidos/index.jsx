@@ -118,7 +118,8 @@ export default function Pedidos() {
   const pedidosFiltrados = pedidos.filter(
     (pedido) =>
       pedido.cliente_nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      pedido.id.toString().includes(busqueda)
+      pedido.id.toString().includes(busqueda) ||
+      pedido.fecha.includes(busqueda)  // Añadida búsqueda por fecha
   )
 
   const handleNuevoPedido = () => {

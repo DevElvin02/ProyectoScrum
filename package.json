@@ -20,9 +20,12 @@
     "@electron-toolkit/utils": "^4.0.0",
     "@tailwindcss/vite": "^4.0.15",
     "better-sqlite3": "^11.9.1",
+    "file-saver": "^2.0.5",
+    "jspdf": "^3.0.1",
     "lucide-react": "^0.483.0",
     "react-router-dom": "^7.3.0",
-    "tailwindcss": "^4.0.15"
+    "tailwindcss": "^4.0.15",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^2.0.0",
