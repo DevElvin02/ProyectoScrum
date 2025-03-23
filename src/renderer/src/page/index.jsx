@@ -40,7 +40,7 @@ export default function Main() {
         <nav className="p-4">
           <NavItem
             icon={<LayoutDashboard size={24} />}
-            label="Resumen"
+            label="Inicio"
             active={location.pathname === '/'}
             expanded={sidebarOpen}
             onClick={() => navigate('/')}
