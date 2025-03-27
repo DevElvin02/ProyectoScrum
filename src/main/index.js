@@ -1,12 +1,21 @@
-// import './database/Handlers/index'
 import { app, BrowserWindow, shell, Menu } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
-import { db, initializeDatabase } from './database/config/db'
+import { connectDatabase, closeDatabase } from './database/config/db'
 import icon from '../../resources/icon.png?asset'
+import './database/controllers/index'
 
-// Inicializar la base de datos
-initializeDatabase()
+// Importa otros controladores aquí
+
+async function setupDatabase() {
+  try {
+    await connectDatabase()
+
+  } catch (error) {
+    console.error('Failed to initialize database:', error)
+    app.quit()
+  }
+}
 
 // Configuración de la ventana
 const windowState = {
@@ -69,7 +78,7 @@ function createWindow() {
 
 // Cuando la aplicación est lista
 app.whenReady().then(async () => {
-  //Crear la ventana principal
+  await setupDatabase()
   createWindow()
 
   // Manejar el evento 'activate' en macOS
@@ -85,12 +94,5 @@ app.on('window-all-closed', async () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-  try {
-    if (db) {
-      db.close()
-      console.log('Database connection closed.')
-    }
-  } catch (error) {
-    console.error('Error closing database:', error)
-  }
+  await closeDatabase()
 })

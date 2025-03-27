@@ -1,52 +1,48 @@
 // src/main/database/db.js
-import Database from 'better-sqlite3'
+import { Sequelize } from 'sequelize'
 import { app } from 'electron'
 import path from 'path'
-import fs from 'fs'
-import { TableOne } from '../schemas/TableOne'
-import { TableTwo } from '../schemas/TableTwo'
-import { TableThree } from '../schemas/TableThree'
-import { schemaUser } from '../schemas/schemaUser'
-import itemHandlers from '../ipcHandlers/itemHandlers'
+import { is } from '@electron-toolkit/utils'
 
-// Ruta de la base de datos
-const dbPath = path.join(app.getPath('userData'), 'database.db')
-console.log('database path: ', app.getPath('userData'))
-
-// Verificar si la base de datos existe, si no, crearla
-if (!fs.existsSync(dbPath)) {
-  fs.writeFileSync(dbPath, '') // Crear un archivo vacío
-}
-
-// Crear o abrir la base de datos
-const db = new Database(dbPath, {
-  verbose: console.log // Log de consultas SQL (opcional, útil en desarrollo)
+// Configurar la conexión a la base de datos
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: path.join(app.getPath('userData'), 'database.sqlite'),
+  logging: is.dev ? console.log : false, //Logs solo en desarrollo
+  define: {
+    freezeTableName: true
+  }
 })
 
-// Asegurar una única instancia de la base de datos
-let isInitialized = false
-
-function initializeDatabase() {
-  if (isInitialized) return
-
+// Función para inicializar la base de datos
+async function connectDatabase() {
   try {
-    // Ejecutar el esquema para crear las tablas //ESTO ES UN EJEMPLO
-    db.exec(TableOne)
-    db.exec(TableTwo)
-    db.exec(TableThree)
-    db.exec(schemaUser)
+    // Verificar conexión
+    await sequelize.authenticate()
+    console.log('Conexión a la base de datos establecida correctamente.')
 
-    console.log('Database initialized successfully.')
+    // Sincronizar modelos
+    await sequelize.sync({ alter: true })
+    console.log('Modelos sincronizados correctamente.')
 
-    // Inicializar los handlers ////ESTO ES UN EJEMPLO
-    itemHandlers()
-
-    isInitialized = true
+    return sequelize
   } catch (error) {
-    console.error('Error initializing database:', error)
-    throw error // Relanzar el error para que la aplicación falle claramente
+    console.error('Error al conectar con la base de datos:', error)
+    throw error
   }
 }
 
-// Exportar la base de datos y funciones útiles
-export { db, initializeDatabase }
+// Cerrar base de datos
+async function closeDatabase() {
+  try {
+    if (this.sequelize) {
+      await sequelize.close()
+      console.log('Conexión a la base de datos cerrada correctamente.')
+    }
+  } catch (error) {
+    console.error('Error al cerrar la conexión:', error)
+    throw error
+  }
+}
+
+export { sequelize, connectDatabase, closeDatabase }
