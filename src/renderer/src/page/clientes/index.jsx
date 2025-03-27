@@ -99,7 +99,7 @@ export default function Clientes() {
       })
     } else {
       const nuevoId = Math.max(0, ...clientes.map((c) => c.id)) + 1
-      setClientes([...clientes, { ...formData, id: nuevoId }])
+      setClientes([{...formData,  id: nuevoId }, ...clientes])
       toast({
         title: "Cliente creado",
         description: `Se ha creado a ${formData.nombre} correctamente.`,
