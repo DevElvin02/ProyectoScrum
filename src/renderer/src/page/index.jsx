@@ -1,11 +1,11 @@
-
 import { useState } from 'react'
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Users, Package, ShoppingCart, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Users, Package, ShoppingCart, Menu, X, Truck } from 'lucide-react'
 import ClientesPage from './clientes'
 import ProductosPage from './productos'
 import PedidosPage from './pedidos'
 import ResumenPage from './resumen/ResumenPage'
+import ProveedoresPage from './Proveedores'
 
 export default function Main() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -66,6 +66,13 @@ export default function Main() {
             expanded={sidebarOpen}
             onClick={() => navigate('/pedidos')}
           />
+          <NavItem
+            icon={<Truck size={24} />}
+            label="Proveedores"
+            active={location.pathname === '/proveedores'}
+            expanded={sidebarOpen}
+            onClick={() => navigate('/proveedores')}
+          />
         </nav>
       </div>
 
@@ -73,10 +80,11 @@ export default function Main() {
       <div className="flex-1 overflow-auto">
         <div className="p-6">
           <Routes>
-          <Route path="/" element={<ResumenPage />} /> {/* Cambiar esto */}
+            <Route path="/" element={<ResumenPage />} />
             <Route path="/clientes" element={<ClientesPage />} />
             <Route path="/productos" element={<ProductosPage />} />
             <Route path="/pedidos" element={<PedidosPage />} />
+            <Route path="/proveedores" element={<ProveedoresPage />} />
           </Routes>
         </div>
       </div>
