@@ -1,51 +1,110 @@
+"use client"
 
-import { useState, useContext } from "react"
-import { Plus } from "lucide-react"
-import { ToastContext } from "../../App"
-import { SearchBar } from "../../components/shared/SearchBar"
-import { Table } from "../../components/shared/Table"
-import { ActionButtons } from "../../components/shared/ActionButtons"
-import { Dialog } from "../../components/shared/Dialog"
-import { DeleteDialog } from "../../components/shared/DeleteDialog"
-import { FormInput } from "../../components/shared/FormInput"
+import { useState } from "react"
+import { Plus, Pencil, Trash2, Search, X, Tag, DollarSign } from "lucide-react"
 
+// Datos de ejemplo para clientes
 const clientesIniciales = [
-  { id: 1, nombre: "Juan Pérez", telefono: "555-1234", email: "juan@ejemplo.com", direccion: "Calle Principal 123" },
-  { id: 2, nombre: "María López", telefono: "555-5678", email: "maria@ejemplo.com", direccion: "Avenida Central 456" },
+  {
+    id: 1,
+    nombre: "Juan Pérez",
+    telefono: "555-1234",
+    email: "juan@ejemplo.com",
+    direccion: "Calle Principal 123",
+    frecuente: true,
+  },
+  {
+    id: 2,
+    nombre: "María López",
+    telefono: "555-5678",
+    email: "maria@ejemplo.com",
+    direccion: "Avenida Central 456",
+    frecuente: true,
+  },
   {
     id: 3,
     nombre: "Carlos Rodríguez",
     telefono: "555-9012",
     email: "carlos@ejemplo.com",
     direccion: "Plaza Mayor 789",
+    frecuente: false,
   },
-  { id: 4, nombre: "Ana Martínez", telefono: "555-3456", email: "ana@ejemplo.com", direccion: "Calle Secundaria 101" },
-  { id: 5, nombre: "Pedro Sánchez", telefono: "555-7890", email: "pedro@ejemplo.com", direccion: "Avenida Norte 202" },
+  {
+    id: 4,
+    nombre: "Ana Martínez",
+    telefono: "555-3456",
+    email: "ana@ejemplo.com",
+    direccion: "Calle Secundaria 101",
+    frecuente: false,
+  },
+  {
+    id: 5,
+    nombre: "Pedro Sánchez",
+    telefono: "555-7890",
+    email: "pedro@ejemplo.com",
+    direccion: "Avenida Norte 202",
+    frecuente: true,
+  },
 ]
 
-export default function Clientes() {
+// Datos de ejemplo para productos
+const productosEjemplo = [
+  { id: 1, nombre: "Laptop Pro", precio: 1299.99, stock: 15 },
+  { id: 2, nombre: 'Monitor 27"', precio: 349.99, stock: 30 },
+  { id: 3, nombre: "Teclado Mecánico", precio: 89.99, stock: 50 },
+  { id: 4, nombre: "Mouse Inalámbrico", precio: 45.99, stock: 100 },
+  { id: 5, nombre: "Auriculares Bluetooth", precio: 129.99, stock: 25 },
+  { id: 6, nombre: "Disco SSD 1TB", precio: 149.99, stock: 40 },
+  { id: 7, nombre: "Cámara Web HD", precio: 69.99, stock: 20 },
+  { id: 8, nombre: "Impresora Láser", precio: 199.99, stock: 10 },
+]
+
+// Datos de ejemplo para precios especiales
+const preciosEspecialesIniciales = [
+  { id: 1, cliente_id: 1, producto_id: 1, precio: 1199.99, descuento: 100.0 },
+  { id: 2, cliente_id: 1, producto_id: 3, precio: 79.99, descuento: 10.0 },
+  { id: 3, cliente_id: 2, producto_id: 2, precio: 329.99, descuento: 20.0 },
+  { id: 4, cliente_id: 5, producto_id: 5, precio: 119.99, descuento: 10.0 },
+]
+
+function ClientesPage() {
+  // Estados
   const [clientes, setClientes] = useState(clientesIniciales)
+  const [preciosEspeciales, setPreciosEspeciales] = useState(preciosEspecialesIniciales)
   const [clienteActual, setClienteActual] = useState(null)
   const [busqueda, setBusqueda] = useState("")
   const [dialogoAbierto, setDialogoAbierto] = useState(false)
   const [dialogoEliminar, setDialogoEliminar] = useState(false)
-  const { toast } = useContext(ToastContext)
+  const [dialogoPreciosEspeciales, setDialogoPreciosEspeciales] = useState(false)
+  const [dialogoNuevoPrecioEspecial, setDialogoNuevoPrecioEspecial] = useState(false)
 
+  // Estado para el formulario de cliente
   const [formData, setFormData] = useState({
     id: 0,
     nombre: "",
     telefono: "",
     email: "",
     direccion: "",
+    frecuente: false,
   })
 
+  // Estado para el formulario de precio especial
+  const [formPrecioEspecial, setFormPrecioEspecial] = useState({
+    id: 0,
+    cliente_id: 0,
+    producto_id: 0,
+    precio: 0,
+    descuento: 0,
+  })
+
+  // Filtrar clientes por nombre o email
   const clientesFiltrados = clientes.filter(
     (cliente) =>
       cliente.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      cliente.email.toLowerCase().includes(busqueda.toLowerCase()) ||
-      cliente.telefono.toLowerCase().includes(busqueda.toLowerCase()) // Añadida búsqueda por teléfono
+      cliente.email.toLowerCase().includes(busqueda.toLowerCase()),
   )
 
+  // Handlers para clientes
   const handleNuevoCliente = () => {
     setClienteActual(null)
     setFormData({
@@ -54,6 +113,7 @@ export default function Clientes() {
       telefono: "",
       email: "",
       direccion: "",
+      frecuente: false,
     })
     setDialogoAbierto(true)
   }
@@ -72,19 +132,18 @@ export default function Clientes() {
   const confirmarEliminar = () => {
     if (clienteActual) {
       setClientes(clientes.filter((c) => c.id !== clienteActual.id))
-      toast({
-        title: "Cliente eliminado",
-        description: `Se ha eliminado a ${clienteActual.nombre} correctamente.`,
-      })
+      // También eliminar los precios especiales asociados
+      setPreciosEspeciales(preciosEspeciales.filter((p) => p.cliente_id !== clienteActual.id))
+      alert(`Se ha eliminado a ${clienteActual.nombre} correctamente.`)
       setDialogoEliminar(false)
     }
   }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
+    const { name, value, type, checked } = e.target
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     })
   }
 
@@ -92,30 +151,160 @@ export default function Clientes() {
     e.preventDefault()
 
     if (clienteActual) {
+      // Editar cliente existente
       setClientes(clientes.map((c) => (c.id === clienteActual.id ? { ...formData, id: clienteActual.id } : c)))
-      toast({
-        title: "Cliente actualizado",
-        description: `Se ha actualizado a ${formData.nombre} correctamente.`,
-      })
+      alert(`Se ha actualizado a ${formData.nombre} correctamente.`)
     } else {
+      // Crear nuevo cliente
       const nuevoId = Math.max(0, ...clientes.map((c) => c.id)) + 1
-      setClientes([{...formData,  id: nuevoId }, ...clientes])
-      toast({
-        title: "Cliente creado",
-        description: `Se ha creado a ${formData.nombre} correctamente.`,
-      })
+      setClientes([...clientes, { ...formData, id: nuevoId }])
+      alert(`Se ha creado a ${formData.nombre} correctamente.`)
     }
     setDialogoAbierto(false)
   }
 
+  // Handlers para precios especiales
+  const handleVerPreciosEspeciales = (cliente) => {
+    setClienteActual(cliente)
+    setDialogoPreciosEspeciales(true)
+  }
+
+  const handleNuevoPrecioEspecial = () => {
+    setFormPrecioEspecial({
+      id: 0,
+      cliente_id: clienteActual.id,
+      producto_id: 0,
+      precio: 0,
+      descuento: 0,
+    })
+    setDialogoNuevoPrecioEspecial(true)
+  }
+
+  const handleEliminarPrecioEspecial = (precioEspecialId) => {
+    setPreciosEspeciales(preciosEspeciales.filter((p) => p.id !== precioEspecialId))
+    alert("Precio especial eliminado correctamente.")
+  }
+
+  const handleInputChangePrecioEspecial = (e) => {
+    const { name, value } = e.target
+
+    if (name === "producto_id") {
+      const productoSeleccionado = productosEjemplo.find((p) => p.id === Number.parseInt(value))
+      if (productoSeleccionado) {
+        // Calcular precio con 5% de descuento por defecto
+        const descuento = Number.parseFloat((productoSeleccionado.precio * 0.05).toFixed(2))
+        const precioEspecial = productoSeleccionado.precio - descuento
+
+        setFormPrecioEspecial({
+          ...formPrecioEspecial,
+          [name]: Number.parseInt(value),
+          precio: precioEspecial,
+          descuento: descuento,
+        })
+      }
+    } else if (name === "descuento") {
+      const descuento = Number.parseFloat(value)
+      const producto = productosEjemplo.find((p) => p.id === formPrecioEspecial.producto_id)
+      if (producto) {
+        const precioEspecial = producto.precio - descuento
+        setFormPrecioEspecial({
+          ...formPrecioEspecial,
+          descuento: descuento,
+          precio: precioEspecial >= 0 ? precioEspecial : 0,
+        })
+      } else {
+        setFormPrecioEspecial({
+          ...formPrecioEspecial,
+          [name]: Number.parseFloat(value),
+        })
+      }
+    } else if (name === "precio") {
+      const precio = Number.parseFloat(value)
+      const producto = productosEjemplo.find((p) => p.id === formPrecioEspecial.producto_id)
+      if (producto) {
+        const descuento = producto.precio - precio
+        setFormPrecioEspecial({
+          ...formPrecioEspecial,
+          precio: precio,
+          descuento: descuento >= 0 ? descuento : 0,
+        })
+      } else {
+        setFormPrecioEspecial({
+          ...formPrecioEspecial,
+          [name]: Number.parseFloat(value),
+        })
+      }
+    } else {
+      setFormPrecioEspecial({
+        ...formPrecioEspecial,
+        [name]: value,
+      })
+    }
+  }
+
+  const handleSubmitPrecioEspecial = (e) => {
+    e.preventDefault()
+
+    // Validar que no exista ya un precio especial para este cliente y producto
+    const existePrecioEspecial = preciosEspeciales.some(
+      (p) =>
+        p.cliente_id === formPrecioEspecial.cliente_id &&
+        p.producto_id === formPrecioEspecial.producto_id &&
+        p.id !== formPrecioEspecial.id,
+    )
+
+    if (existePrecioEspecial) {
+      alert("Ya existe un precio especial para este producto y cliente. Edite el existente.")
+      return
+    }
+
+    if (formPrecioEspecial.id === 0) {
+      // Crear nuevo precio especial
+      const nuevoId = Math.max(0, ...preciosEspeciales.map((p) => p.id)) + 1
+      setPreciosEspeciales([...preciosEspeciales, { ...formPrecioEspecial, id: nuevoId }])
+      alert("Precio especial creado correctamente.")
+    } else {
+      // Actualizar precio especial existente
+      setPreciosEspeciales(
+        preciosEspeciales.map((p) => (p.id === formPrecioEspecial.id ? { ...formPrecioEspecial } : p)),
+      )
+      alert("Precio especial actualizado correctamente.")
+    }
+
+    setDialogoNuevoPrecioEspecial(false)
+  }
+
+  const handleEditarPrecioEspecial = (precioEspecial) => {
+    setFormPrecioEspecial({ ...precioEspecial })
+    setDialogoNuevoPrecioEspecial(true)
+  }
+
+  // Obtener el nombre del producto por ID
+  const getProductoNombre = (productoId) => {
+    const producto = productosEjemplo.find((p) => p.id === productoId)
+    return producto ? producto.nombre : "Producto no encontrado"
+  }
+
+  // Obtener el precio estándar del producto por ID
+  const getProductoPrecioEstandar = (productoId) => {
+    const producto = productosEjemplo.find((p) => p.id === productoId)
+    return producto ? producto.precio : 0
+  }
+
   return (
-    <div className="space-y-4 overflow-hidden">
+    <div className="space-y-4">
+      {/* Barra de búsqueda y botón de nuevo cliente */}
       <div className="flex justify-between items-center">
-        <SearchBar
-          value={busqueda}
-          onChange={setBusqueda}
-          placeholder="Buscar clientes..."
-        />
+        <div className="relative w-64">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar clientes..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="pl-8 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+          />
+        </div>
         <button
           onClick={handleNuevoCliente}
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -124,80 +313,457 @@ export default function Clientes() {
         </button>
       </div>
 
-      <Table
-        headers={['ID', 'Nombre', 'Teléfono', 'Email', 'Dirección', 'Acciones']}
-        empty="No se encontraron clientes"
-      >
-        {clientesFiltrados.map(cliente => (
-          <tr key={cliente.id}>
-            <td className="px-6 py-4 whitespace-nowrap text-sm">{cliente.id}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm">{cliente.nombre}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm">{cliente.telefono}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm">{cliente.email}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm">{cliente.direccion}</td>
-            <ActionButtons
-              onEdit={() => handleEditarCliente(cliente)}
-              onDelete={() => handleEliminarCliente(cliente)}
-            />
-          </tr>
-        ))}
-      </Table>
+      {/* Tabla de clientes */}
+      <div className="rounded-md border border-gray-200 dark:border-gray-700 overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                ID
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Nombre
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Teléfono
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Dirección
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Tipo
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+            {clientesFiltrados.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                  No se encontraron clientes
+                </td>
+              </tr>
+            ) : (
+              clientesFiltrados.map((cliente) => (
+                <tr key={cliente.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{cliente.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    {cliente.nombre}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    {cliente.telefono}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    {cliente.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    {cliente.direccion}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    {cliente.frecuente ? (
+                      <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                        Frecuente
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                        Regular
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    {cliente.frecuente && (
+                      <button
+                        className="inline-flex items-center px-2.5 py-1.5 mr-2 text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 rounded hover:bg-indigo-200 dark:hover:bg-indigo-800"
+                        onClick={() => handleVerPreciosEspeciales(cliente)}
+                      >
+                        <Tag className="h-3.5 w-3.5 mr-1" />
+                        Precios Especiales
+                      </button>
+                    )}
+                    <button
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 p-1"
+                      onClick={() => handleEditarCliente(cliente)}
+                      title="Editar cliente"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 p-1 ml-2"
+                      onClick={() => handleEliminarCliente(cliente)}
+                      title="Eliminar cliente"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      <Dialog
-        open={dialogoAbierto}
-        onClose={() => setDialogoAbierto(false)}
-        title={clienteActual ? 'Editar Cliente' : 'Nuevo Cliente'}
-      >
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
-          <FormInput
-            label="Nombre"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleInputChange}
-            placeholder="Nombre completo"
-            required
-          />
-          <FormInput
-            label="Teléfono"
-            name="telefono"
-            value={formData.telefono}
-            onChange={handleInputChange}
-            placeholder="Número de teléfono"
-            required
-          />
-          <FormInput
-            label="Email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            placeholder="Correo electrónico"
-            required
-          />
-          <FormInput
-            label="Dirección"
-            name="direccion"
-            value={formData.direccion}
-            onChange={handleInputChange}
-            placeholder="Dirección completa"
-            required
-          />
-          <div className="flex justify-end pt-4">
-            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-              {clienteActual ? 'Guardar cambios' : 'Crear cliente'}
-            </button>
+      {/* Modal para crear/editar cliente */}
+      {dialogoAbierto && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <h3 className="text-lg font-medium">{clienteActual ? "Editar Cliente" : "Nuevo Cliente"}</h3>
+              <button
+                onClick={() => setDialogoAbierto(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
+                <input
+                  type="text"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleInputChange}
+                  placeholder="Nombre completo"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
+                <input
+                  type="text"
+                  name="telefono"
+                  value={formData.telefono}
+                  onChange={handleInputChange}
+                  placeholder="Número de teléfono"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="Correo electrónico"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dirección</label>
+                <input
+                  type="text"
+                  name="direccion"
+                  value={formData.direccion}
+                  onChange={handleInputChange}
+                  placeholder="Dirección completa"
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+                  required
+                />
+              </div>
+              <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
+                <div className="flex items-center mb-2">
+                  <input
+                    type="checkbox"
+                    id="frecuente"
+                    name="frecuente"
+                    checked={formData.frecuente}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label
+                    htmlFor="frecuente"
+                    className="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    Cliente frecuente
+                  </label>
+                </div>
+                {formData.frecuente && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Los clientes frecuentes pueden recibir precios especiales en productos específicos. Podrá gestionar
+                    estos precios después de guardar el cliente.
+                  </p>
+                )}
+              </div>
+              <div className="flex justify-end pt-4">
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                  {clienteActual ? "Guardar cambios" : "Crear cliente"}
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
-      </Dialog>
+        </div>
+      )}
 
-      <DeleteDialog
-        open={dialogoEliminar}
-        onClose={() => setDialogoEliminar(false)}
-        onConfirm={confirmarEliminar}
-        title="Confirmar eliminación"
-        message={`¿Estás seguro de que deseas eliminar a ${clienteActual?.nombre}? Esta acción no se puede deshacer.`}
-      />
+      {/* Modal para confirmar eliminación */}
+      {dialogoEliminar && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-medium">Confirmar eliminación</h3>
+            </div>
+            <div className="p-4">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                ¿Estás seguro de que deseas eliminar a {clienteActual?.nombre}? Esta acción no se puede deshacer.
+              </p>
+            </div>
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-2">
+              <button
+                onClick={() => setDialogoEliminar(false)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarEliminar}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para ver precios especiales */}
+      {dialogoPreciosEspeciales && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-4xl w-full">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <h3 className="text-lg font-medium">Gestión de Precios Especiales - {clienteActual?.nombre}</h3>
+              <button
+                onClick={() => setDialogoPreciosEspeciales(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4">
+              <div className="mb-4 flex justify-between items-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Precios especiales asignados a este cliente.</p>
+                <button
+                  onClick={handleNuevoPrecioEspecial}
+                  className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Asignar Nuevo Precio Especial
+                </button>
+              </div>
+
+              <div className="rounded-md border border-gray-200 dark:border-gray-700 overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Producto
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Precio Estándar
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Precio Especial
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Descuento
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                    {preciosEspeciales.filter((p) => p.cliente_id === clienteActual?.id).length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                          No hay precios especiales asignados a este cliente
+                        </td>
+                      </tr>
+                    ) : (
+                      preciosEspeciales
+                        .filter((p) => p.cliente_id === clienteActual?.id)
+                        .map((precioEspecial) => {
+                          const precioEstandar = getProductoPrecioEstandar(precioEspecial.producto_id)
+                          const descuentoPorcentaje = (
+                            ((precioEstandar - precioEspecial.precio) / precioEstandar) *
+                            100
+                          ).toFixed(2)
+
+                          return (
+                            <tr key={precioEspecial.id}>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                                {getProductoNombre(precioEspecial.producto_id)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-right">
+                                ${precioEstandar.toFixed(2)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-right">
+                                ${precioEspecial.precio.toFixed(2)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-right">
+                                ${precioEspecial.descuento.toFixed(2)} ({descuentoPorcentaje}%)
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button
+                                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 p-1"
+                                  onClick={() => handleEditarPrecioEspecial(precioEspecial)}
+                                  title="Editar precio especial"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </button>
+                                <button
+                                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 p-1 ml-2"
+                                  onClick={() => handleEliminarPrecioEspecial(precioEspecial.id)}
+                                  title="Eliminar precio especial"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          )
+                        })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+              <button
+                onClick={() => setDialogoPreciosEspeciales(false)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para crear/editar precio especial */}
+      {dialogoNuevoPrecioEspecial && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <h3 className="text-lg font-medium">
+                {formPrecioEspecial.id ? "Editar Precio Especial" : "Nuevo Precio Especial"}
+              </h3>
+              <button
+                onClick={() => setDialogoNuevoPrecioEspecial(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmitPrecioEspecial} className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Producto</label>
+                <select
+                  name="producto_id"
+                  value={formPrecioEspecial.producto_id}
+                  onChange={handleInputChangePrecioEspecial}
+                  className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+                  required
+                >
+                  <option value="">Seleccionar producto</option>
+                  {productosEjemplo.map((producto) => (
+                    <option key={producto.id} value={producto.id}>
+                      {producto.nombre} - ${producto.precio.toFixed(2)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {formPrecioEspecial.producto_id > 0 && (
+                <>
+                  <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
+                    <span className="text-sm font-medium">Precio estándar:</span>
+                    <span className="font-bold">
+                      ${getProductoPrecioEstandar(formPrecioEspecial.producto_id).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Descuento ($)
+                    </label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      <input
+                        type="number"
+                        name="descuento"
+                        value={formPrecioEspecial.descuento}
+                        onChange={handleInputChangePrecioEspecial}
+                        step="0.01"
+                        min="0"
+                        max={getProductoPrecioEstandar(formPrecioEspecial.producto_id)}
+                        className="pl-8 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Precio especial ($)
+                    </label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      <input
+                        type="number"
+                        name="precio"
+                        value={formPrecioEspecial.precio}
+                        onChange={handleInputChangePrecioEspecial}
+                        step="0.01"
+                        min="0"
+                        max={getProductoPrecioEstandar(formPrecioEspecial.producto_id)}
+                        className="pl-8 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {formPrecioEspecial.descuento > 0 && (
+                    <div className="p-3 bg-green-50 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-md text-sm">
+                      Descuento del{" "}
+                      {(
+                        (formPrecioEspecial.descuento / getProductoPrecioEstandar(formPrecioEspecial.producto_id)) *
+                        100
+                      ).toFixed(2)}
+                      %
+                    </div>
+                  )}
+                </>
+              )}
+
+              <div className="flex justify-end pt-4">
+                <button
+                  type="button"
+                  onClick={() => setDialogoNuevoPrecioEspecial(false)}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 mr-2"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  disabled={!formPrecioEspecial.producto_id}
+                >
+                  {formPrecioEspecial.id ? "Actualizar" : "Crear"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+
+export default ClientesPage
 
