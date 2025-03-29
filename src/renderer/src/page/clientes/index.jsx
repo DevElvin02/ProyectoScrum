@@ -1,9 +1,12 @@
 import { useState, useContext } from "react"
-import { Plus, Pencil, Trash2, Search, X, Tag, DollarSign } from "lucide-react"
+import { Plus, Pencil, Trash2, Search, X, Tag, DollarSign, FileDown } from "lucide-react"
 import { ClientesProvider, ClientesContext } from "../context/ClienteContext"
 import { useForm } from "react-hook-form";
 import ModalCliente from "./components/modalCliente"
 import ModalEliminarCliente from "./components/modalEliminarCliente"
+import * as XLSX from 'xlsx'
+import { jsPDF } from 'jspdf'
+import 'jspdf-autotable'
 
 // Datos de ejemplo para productos
 const productosEjemplo = [
@@ -60,6 +63,12 @@ function ClientesPage() {
     precio: 0,
     descuento: 0,
   })
+
+  // Agregar este nuevo estado junto a los demás estados
+  const [dateRange, setDateRange] = useState({
+    startDate: '',
+    endDate: ''
+  });
 
   // Filtrar clientes por nombre o email
   const clientesFiltrados = clientes.filter(
@@ -226,8 +235,79 @@ function ClientesPage() {
     return producto ? producto.precio : 0
   }
 
+  // Función para exportar a Excel
+  const exportToExcel = () => {
+    const filteredData = clientes.filter(cliente => {
+      if (!dateRange.startDate || !dateRange.endDate) return true;
+      const clienteDate = new Date(cliente.createdAt);
+      return clienteDate >= new Date(dateRange.startDate) && 
+             clienteDate <= new Date(dateRange.endDate);
+    });
+
+    const ws = XLSX.utils.json_to_sheet(filteredData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Clientes");
+    XLSX.writeFile(wb, "reporte-clientes.xlsx");
+  };
+
+  // Función para exportar a PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    const tableData = clientes.map(cliente => ([
+      cliente.id,
+      cliente.nombre,
+      cliente.telefono,
+      cliente.email,
+      cliente.direccion,
+      cliente.frecuente ? 'Sí' : 'No'
+    ]));
+
+    doc.autoTable({
+      head: [['ID', 'Nombre', 'Teléfono', 'Email', 'Dirección', 'Frecuente']],
+      body: tableData,
+      margin: { top: 10 },
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [41, 128, 185] }
+    });
+
+    doc.save('clientes-reporte.pdf');
+  };
+
   return (
     <div className="space-y-4">
+      {/* Agregar este nuevo div justo al inicio del return, antes de tu contenido existente */}
+      <div className="flex justify-between items-center mb-4 bg-white p-4 rounded-lg shadow">
+        <div className="flex items-center space-x-4">
+          <input
+            type="date"
+            value={dateRange.startDate}
+            onChange={(e) => setDateRange({...dateRange, startDate: e.target.value})}
+            className="border rounded p-2"
+          />
+          <input
+            type="date"
+            value={dateRange.endDate}
+            onChange={(e) => setDateRange({...dateRange, endDate: e.target.value})}
+            className="border rounded p-2"
+          />
+        </div>
+        <div className="flex space-x-2">
+          <button
+            onClick={exportToExcel}
+            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+          >
+            <FileDown className="mr-2 h-4 w-4" /> Excel
+          </button>
+          <button
+            onClick={exportToPDF}
+            className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+          >
+            <FileDown className="mr-2 h-4 w-4" /> PDF
+          </button>
+        </div>
+      </div>
+
       {/* Modal para crear/editar cliente */}
       {dialogoNuevoCliente &&
         <ModalCliente
