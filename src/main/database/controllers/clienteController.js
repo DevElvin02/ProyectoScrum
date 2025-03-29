@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron'
-import { Cliente } from '../models/clienteModel'
+import Cliente from '../models/clienteModel.js'
+
 
 // Crear cliente
 ipcMain.handle('cliente:create', async (_, data) => {
@@ -36,6 +37,7 @@ ipcMain.handle('cliente:getById', async (_, id) => {
 
 // Actualizar cliente
 ipcMain.handle('cliente:update', async (_, { id, data }) => {
+  // console.log(id, data)
   try {
     const cliente = await Cliente.findByPk(id)
     if (cliente) {

@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize'
 import { sequelize } from '../config/db'
 
-export const Cliente = sequelize.define('Client', {
+const Cliente = sequelize.define('Client', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -22,8 +22,14 @@ export const Cliente = sequelize.define('Client', {
       isEmail: true
     }
   },
+  frecuente: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
   direccion: {
     type: DataTypes.TEXT,
     allowNull: true
   }
 })
+
+export default Cliente;

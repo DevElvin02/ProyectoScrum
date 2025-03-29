@@ -2,6 +2,7 @@ import { app, BrowserWindow, shell, Menu } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { connectDatabase, closeDatabase } from './database/config/db'
+import Cliente  from "./database/models/clienteModel"
 import icon from '../../resources/icon.png?asset'
 import './database/controllers/index'
 

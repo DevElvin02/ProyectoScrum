@@ -3,14 +3,22 @@ import { Sequelize } from 'sequelize'
 import { app } from 'electron'
 import path from 'path'
 import { is } from '@electron-toolkit/utils'
+console.log(path.join(app.getPath('userData'), 'database.sqlite'))
 
 // Configurar la conexión a la base de datos
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: path.join(app.getPath('userData'), 'database.sqlite'),
-  logging: is.dev ? console.log : false, //Logs solo en desarrollo
+  logging:  false, //Logs solo en desarrollo
   define: {
     freezeTableName: true
+  },
+  // Agregar estas opciones para mejor manejo de conexiones
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
   }
 })
 
@@ -35,7 +43,7 @@ async function connectDatabase() {
 // Cerrar base de datos
 async function closeDatabase() {
   try {
-    if (this.sequelize) {
+    if (sequelize) { // Removido this.
       await sequelize.close()
       console.log('Conexión a la base de datos cerrada correctamente.')
     }

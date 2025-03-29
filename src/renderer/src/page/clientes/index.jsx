@@ -1,51 +1,9 @@
-"use client"
-
-import { useState } from "react"
+import { useState, useContext } from "react"
 import { Plus, Pencil, Trash2, Search, X, Tag, DollarSign } from "lucide-react"
-
-// Datos de ejemplo para clientes
-const clientesIniciales = [
-  {
-    id: 1,
-    nombre: "Juan Pérez",
-    telefono: "555-1234",
-    email: "juan@ejemplo.com",
-    direccion: "Calle Principal 123",
-    frecuente: true,
-  },
-  {
-    id: 2,
-    nombre: "María López",
-    telefono: "555-5678",
-    email: "maria@ejemplo.com",
-    direccion: "Avenida Central 456",
-    frecuente: true,
-  },
-  {
-    id: 3,
-    nombre: "Carlos Rodríguez",
-    telefono: "555-9012",
-    email: "carlos@ejemplo.com",
-    direccion: "Plaza Mayor 789",
-    frecuente: false,
-  },
-  {
-    id: 4,
-    nombre: "Ana Martínez",
-    telefono: "555-3456",
-    email: "ana@ejemplo.com",
-    direccion: "Calle Secundaria 101",
-    frecuente: false,
-  },
-  {
-    id: 5,
-    nombre: "Pedro Sánchez",
-    telefono: "555-7890",
-    email: "pedro@ejemplo.com",
-    direccion: "Avenida Norte 202",
-    frecuente: true,
-  },
-]
+import { ClientesProvider, ClientesContext } from "../context/ClienteContext"
+import { useForm } from "react-hook-form";
+import ModalCliente from "./components/modalCliente"
+import ModalEliminarCliente from "./components/modalEliminarCliente"
 
 // Datos de ejemplo para productos
 const productosEjemplo = [
@@ -68,13 +26,19 @@ const preciosEspecialesIniciales = [
 ]
 
 function ClientesPage() {
+  const { clientes, cargando, cargarClientes, agregarClientes, eliminarCliente } = useContext(ClientesContext);
+
   // Estados
-  const [clientes, setClientes] = useState(clientesIniciales)
+  // const [clientes, setClientes] = useState(clientesIniciales)
   const [preciosEspeciales, setPreciosEspeciales] = useState(preciosEspecialesIniciales)
   const [clienteActual, setClienteActual] = useState(null)
   const [busqueda, setBusqueda] = useState("")
-  const [dialogoAbierto, setDialogoAbierto] = useState(false)
+
+  const [dialogoNuevoCliente, setDialogoNuevoCliente] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+
   const [dialogoEliminar, setDialogoEliminar] = useState(false)
+
   const [dialogoPreciosEspeciales, setDialogoPreciosEspeciales] = useState(false)
   const [dialogoNuevoPrecioEspecial, setDialogoNuevoPrecioEspecial] = useState(false)
 
@@ -105,23 +69,14 @@ function ClientesPage() {
   )
 
   // Handlers para clientes
-  const handleNuevoCliente = () => {
-    setClienteActual(null)
-    setFormData({
-      id: 0,
-      nombre: "",
-      telefono: "",
-      email: "",
-      direccion: "",
-      frecuente: false,
-    })
-    setDialogoAbierto(true)
+  const handleDialogNuevoCliente = () => {
+    setIsEditing(false)
+    setDialogoNuevoCliente(true)
   }
-
   const handleEditarCliente = (cliente) => {
     setClienteActual(cliente)
-    setFormData({ ...cliente })
-    setDialogoAbierto(true)
+    setDialogoNuevoCliente(true)
+    setIsEditing(true)
   }
 
   const handleEliminarCliente = (cliente) => {
@@ -129,16 +84,8 @@ function ClientesPage() {
     setDialogoEliminar(true)
   }
 
-  const confirmarEliminar = () => {
-    if (clienteActual) {
-      setClientes(clientes.filter((c) => c.id !== clienteActual.id))
-      // También eliminar los precios especiales asociados
-      setPreciosEspeciales(preciosEspeciales.filter((p) => p.cliente_id !== clienteActual.id))
-      alert(`Se ha eliminado a ${clienteActual.nombre} correctamente.`)
-      setDialogoEliminar(false)
-    }
-  }
 
+/* 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
     setFormData({
@@ -147,21 +94,9 @@ function ClientesPage() {
     })
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+ */
 
-    if (clienteActual) {
-      // Editar cliente existente
-      setClientes(clientes.map((c) => (c.id === clienteActual.id ? { ...formData, id: clienteActual.id } : c)))
-      alert(`Se ha actualizado a ${formData.nombre} correctamente.`)
-    } else {
-      // Crear nuevo cliente
-      const nuevoId = Math.max(0, ...clientes.map((c) => c.id)) + 1
-      setClientes([...clientes, { ...formData, id: nuevoId }])
-      alert(`Se ha creado a ${formData.nombre} correctamente.`)
-    }
-    setDialogoAbierto(false)
-  }
+
 
   // Handlers para precios especiales
   const handleVerPreciosEspeciales = (cliente) => {
@@ -293,123 +228,16 @@ function ClientesPage() {
 
   return (
     <div className="space-y-4">
-      {/* Barra de búsqueda y botón de nuevo cliente */}
-      <div className="flex justify-between items-center">
-        <div className="relative w-64">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar clientes..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            className="pl-8 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
-          />
-        </div>
-        <button
-          onClick={handleNuevoCliente}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          <Plus className="mr-2 h-4 w-4" /> Nuevo Cliente
-        </button>
-      </div>
-
-      {/* Tabla de clientes */}
-      <div className="rounded-md border border-gray-200 dark:border-gray-700 overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-800">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                ID
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Nombre
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Teléfono
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Dirección
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Tipo
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-            {clientesFiltrados.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                  No se encontraron clientes
-                </td>
-              </tr>
-            ) : (
-              clientesFiltrados.map((cliente) => (
-                <tr key={cliente.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{cliente.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {cliente.nombre}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {cliente.telefono}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {cliente.email}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {cliente.direccion}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                    {cliente.frecuente ? (
-                      <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                        Frecuente
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                        Regular
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {cliente.frecuente && (
-                      <button
-                        className="inline-flex items-center px-2.5 py-1.5 mr-2 text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 rounded hover:bg-indigo-200 dark:hover:bg-indigo-800"
-                        onClick={() => handleVerPreciosEspeciales(cliente)}
-                      >
-                        <Tag className="h-3.5 w-3.5 mr-1" />
-                        Precios Especiales
-                      </button>
-                    )}
-                    <button
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 p-1"
-                      onClick={() => handleEditarCliente(cliente)}
-                      title="Editar cliente"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </button>
-                    <button
-                      className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 p-1 ml-2"
-                      onClick={() => handleEliminarCliente(cliente)}
-                      title="Eliminar cliente"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
       {/* Modal para crear/editar cliente */}
-      {dialogoAbierto && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {dialogoNuevoCliente &&
+        <ModalCliente
+          isEditing={isEditing}
+          setDialogoNuevoCliente={setDialogoNuevoCliente}
+          clienteData={clienteActual}
+        >
+        </ModalCliente>}
+      {/* {dialogoAbierto && (
+        <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <h3 className="text-lg font-medium">{clienteActual ? "Editar Cliente" : "Nuevo Cliente"}</h3>
@@ -420,14 +248,13 @@ function ClientesPage() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-4 space-y-4">
+            <form onSubmit={handleSubmit(onSubmitNewCliente)} className="p-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
+                <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
                 <input
+                  id="nombre"
                   type="text"
-                  name="nombre"
-                  value={formData.nombre}
-                  onChange={handleInputChange}
+                  {...register('nombre', { required: true })}
                   placeholder="Nombre completo"
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
                   required
@@ -436,10 +263,9 @@ function ClientesPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
                 <input
+                  id="telefono"
                   type="text"
-                  name="telefono"
-                  value={formData.telefono}
-                  onChange={handleInputChange}
+                  {...register('telefono', { required: true })}
                   placeholder="Número de teléfono"
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
                   required
@@ -450,8 +276,7 @@ function ClientesPage() {
                 <input
                   type="email"
                   name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
+                  {...register('email', { required: true })}
                   placeholder="Correo electrónico"
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
                   required
@@ -462,8 +287,7 @@ function ClientesPage() {
                 <input
                   type="text"
                   name="direccion"
-                  value={formData.direccion}
-                  onChange={handleInputChange}
+                  {...register('direccion', { required: true })}
                   placeholder="Dirección completa"
                   className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
                   required
@@ -475,8 +299,7 @@ function ClientesPage() {
                     type="checkbox"
                     id="frecuente"
                     name="frecuente"
-                    checked={formData.frecuente}
-                    onChange={handleInputChange}
+                    {...register('frecuente')}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label
@@ -501,11 +324,21 @@ function ClientesPage() {
             </form>
           </div>
         </div>
-      )}
+      )} */}
+
+
+
 
       {/* Modal para confirmar eliminación */}
-      {dialogoEliminar && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      {dialogoEliminar &&
+        <ModalEliminarCliente
+          idCliente={clienteActual.id}
+          nombreCliente={clienteActual.nombre}
+          setDialogoEliminar={setDialogoEliminar}>
+        </ModalEliminarCliente>
+      }
+      {/* {dialogoEliminar && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <h3 className="text-lg font-medium">Confirmar eliminación</h3>
@@ -523,7 +356,7 @@ function ClientesPage() {
                 Cancelar
               </button>
               <button
-                onClick={confirmarEliminar}
+                onClick={() => confirmarEliminar()}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
                 Eliminar
@@ -531,7 +364,8 @@ function ClientesPage() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
+
 
       {/* Modal para ver precios especiales */}
       {dialogoPreciosEspeciales && (
@@ -761,9 +595,136 @@ function ClientesPage() {
           </div>
         </div>
       )}
+
+
+
+
+      {/* Barra de búsqueda y botón de nuevo cliente */}
+      <div className="flex justify-between items-center">
+        <div className="relative w-64">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <input
+            type="text"
+            placeholder="Buscar clientes..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="pl-8 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+          />
+        </div>
+        <button
+          onClick={() => handleDialogNuevoCliente()}
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          <Plus className="mr-2 h-4 w-4" /> Nuevo Cliente
+        </button>
+      </div>
+
+      {/* Tabla de clientes */}
+      <div className="rounded-md border border-gray-200 dark:border-gray-700 overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                ID
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Nombre
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Teléfono
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Dirección
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Tipo
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+            {clientesFiltrados.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                  No se encontraron clientes
+                </td>
+              </tr>
+            ) : (
+              clientesFiltrados.map((cliente) => (
+                <tr key={cliente.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{cliente.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    {cliente.nombre}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    {cliente.telefono}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    {cliente.email}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    {cliente.direccion}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    {cliente.frecuente ? (
+                      <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                        Frecuente
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                        Regular
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    {cliente.frecuente && (
+                      <button
+                        className="inline-flex items-center px-2.5 py-1.5 mr-2 text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 rounded hover:bg-indigo-200 dark:hover:bg-indigo-800"
+                        onClick={() => handleVerPreciosEspeciales(cliente)}
+                      >
+                        <Tag className="h-3.5 w-3.5 mr-1" />
+                        Precios Especiales
+                      </button>
+                    )}
+                    <button
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 p-1"
+                      onClick={() => handleEditarCliente(cliente)}
+                      title="Editar cliente"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 p-1 ml-2"
+                      onClick={() => handleEliminarCliente(cliente)}
+                      title="Eliminar cliente"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+
     </div>
   )
 }
 
-export default ClientesPage
+// export default ClientesPage
+
+export default function ClientesIndex() {
+  return (
+    <ClientesProvider>
+      <ClientesPage />
+    </ClientesProvider>
+  );
+}
 
