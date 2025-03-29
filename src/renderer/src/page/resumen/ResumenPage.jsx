@@ -47,7 +47,7 @@ export default function ResumenPage() {
           <div className="p-4 pl-2">
             <div className="h-[300px] flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-md">
               <BarChart3 className="h-16 w-16 text-gray-400" />
-              <span className="ml-2 text-gray-500 dark:text-gray-400">Gráfico de ventas</span>
+              <span className="ml-2 text-gray-500 dark:text-gray-400">Gráfico--ventas</span>
             </div>
           </div>
         </div>
