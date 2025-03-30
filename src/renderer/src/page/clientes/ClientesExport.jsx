@@ -1,8 +1,31 @@
 import ExportOptions from "../../components/shared/ExportOptions"
 import { exportToPDF, exportToExcel } from "../../services/exportService"
 
+// Ejemplo de servicio para clientes
+const guardarCliente = async (cliente) => {
+  try {
+    // Validar datos
+    if (!cliente.nombre || !cliente.email) {
+      throw new Error('Datos incompletos');
+    }
+
+    // Llamar a la base de datos
+    const result = await db.clientes.insert(cliente);
+    
+    // Verificar resultado
+    if (!result) {
+      throw new Error('Error al guardar cliente');
+    }
+
+    return result;
+
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
+
 const ClientesExport = ({ clientes }) => {
-  // Columnas para exportación
   const columns = [
     { header: "ID", accessor: "id" },
     { header: "Nombre", accessor: "nombre" },
@@ -11,13 +34,30 @@ const ClientesExport = ({ clientes }) => {
     { header: "Dirección", accessor: "direccion" },
   ]
 
-  const handleExport = ({ startDate, endDate, type }) => {
-    // En un caso real, filtrarías los datos por fecha
-    // Aquí simplemente pasamos todos los datos
-    if (type === "pdf") {
-      exportToPDF(clientes, columns, "Listado de Clientes", { startDate, endDate })
-    } else {
-      exportToExcel(clientes, columns, "Listado de Clientes", { startDate, endDate })
+  const handleExport = async ({ startDate, endDate, type }) => {
+    try {
+      // Verificar si hay datos para exportar
+      if (!clientes || clientes.length === 0) {
+        console.error("No hay datos de clientes para exportar");
+        return;
+      }
+
+      // Limpiar y validar los datos antes de exportar
+      const dataToExport = clientes.map(cliente => ({
+        id: cliente.id || '',
+        nombre: cliente.nombre || '',
+        telefono: cliente.telefono || '',
+        email: cliente.email || '',
+        direccion: cliente.direccion || ''
+      }));
+
+      if (type === "pdf") {
+        await exportToPDF(dataToExport, columns, "Listado de Clientes", { startDate, endDate });
+      } else {
+        await exportToExcel(dataToExport, columns, "Listado de Clientes", { startDate, endDate });
+      }
+    } catch (error) {
+      console.error("Error al exportar:", error);
     }
   }
 

@@ -449,7 +449,7 @@ function ClientesPage() {
 
       {/* Modal para ver precios especiales */}
       {dialogoPreciosEspeciales && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-4xl w-full">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <h3 className="text-lg font-medium">Gestión de Precios Especiales - {clienteActual?.nombre}</h3>
@@ -561,7 +561,7 @@ function ClientesPage() {
 
       {/* Modal para crear/editar precio especial */}
       {dialogoNuevoPrecioEspecial && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <h3 className="text-lg font-medium">
