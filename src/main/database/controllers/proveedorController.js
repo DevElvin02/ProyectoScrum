@@ -2,7 +2,6 @@
 import { ipcMain } from 'electron'
 import Proveedor from '../models/Proveedor.js'
 
-
 // Crear proveedor
 ipcMain.handle('proveedor:create', async (_, data) => {
   try {
@@ -78,85 +77,3 @@ ipcMain.handle('proveedor:delete', async (_, id) => {
     throw error
   }
 })
-
-// class ProveedorController {
-//   // Crear un nuevo proveedor
-//   async crearProveedor(proveedorData) {
-//     try {
-//       const proveedor = await Proveedor.create(proveedorData)
-//       return proveedor
-//     } catch (error) {
-//       console.error('Error al crear proveedor:', error)
-//       throw error
-//     }
-//   }
-
-//   // Obtener todos los proveedores
-//   async obtenerProveedores() {
-//     try {
-//       const proveedores = await Proveedor.findAll({
-//         include: [{ model: Producto }]
-//       })
-//       return proveedores
-//     } catch (error) {
-//       console.error('Error al obtener proveedores:', error)
-//       throw error
-//     }
-//   }
-
-//   // Obtener un proveedor por ID
-//   async obtenerProveedorPorId(id) {
-//     try {
-//       const proveedor = await Proveedor.findByPk(id, {
-//         include: [{ model: Producto }]
-//       })
-//       return proveedor
-//     } catch (error) {
-//       console.error('Error al obtener proveedor:', error)
-//       throw error
-//     }
-//   }
-
-//   // Actualizar proveedor
-//   async actualizarProveedor(id, datos) {
-//     try {
-//       const proveedor = await Proveedor.findByPk(id)
-//       if (!proveedor) {
-//         throw new Error('Proveedor no encontrado')
-//       }
-//       await proveedor.update(datos)
-//       return proveedor
-//     } catch (error) {
-//       console.error('Error al actualizar proveedor:', error)
-//       throw error
-//     }
-//   }
-
-//   // Obtener productos por proveedor
-//   async obtenerProductosProveedor(id) {
-//     try {
-//       const productos = await Producto.findAll({
-//         where: { proveedorId: id }
-//       })
-//       return productos
-//     } catch (error) {
-//       console.error('Error al obtener productos del proveedor:', error)
-//       throw error
-//     }
-//   }
-
-//   // Eliminar proveedor
-//   async eliminarProveedor(id) {
-//     try {
-//       const resultado = await Proveedor.destroy({
-//         where: { id }
-//       })
-//       return resultado
-//     } catch (error) {
-//       console.error('Error al eliminar proveedor:', error)
-//       throw error
-//     }
-//   }
-// }
-
-// export default new ProveedorController()

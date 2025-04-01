@@ -30,7 +30,7 @@ async function connectDatabase() {
     console.log('Conexión a la base de datos establecida correctamente.')
 
     // Sincronizar modelos
-    await sequelize.sync({ alter: true })
+    await sequelize.sync()
     console.log('Modelos sincronizados correctamente.')
 
     return sequelize

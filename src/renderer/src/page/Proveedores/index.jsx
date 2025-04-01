@@ -1,52 +1,51 @@
-"use client"
+import { useState } from 'react'
+import { Search, Plus } from 'lucide-react'
+import SupplierForm from '../../components/shared/SupplierForm'
+import SupplierList from '../../components/shared/SupplierList'
+import PurchaseHistory from '../../components/shared/PurchaseHistory'
 
-import { useState } from "react"
-import { Search, Plus } from "lucide-react"
-import SupplierForm from "../../components/shared/SupplierForm"
-import SupplierList from "../../components/shared/SupplierList"
-import PurchaseHistory from "../../components/shared/PurchaseHistory"
 
 // Datos de ejemplo para proveedores
 const initialSuppliers = [
   {
     id: 1,
-    name: "Distribuidora ABC",
-    contact: "555-1234",
-    email: "contacto@abc.com",
-    supplyType: "Materias primas",
-    category: "Alimentos",
+    name: 'Distribuidora ABC',
+    contact: '555-1234',
+    email: 'contacto@abc.com',
+    supplyType: 'Materias primas',
+    category: 'Alimentos'
   },
   {
     id: 2,
-    name: "Insumos XYZ",
-    contact: "555-5678",
-    email: "ventas@xyz.com",
-    supplyType: "Empaques",
-    category: "Plásticos",
+    name: 'Insumos XYZ',
+    contact: '555-5678',
+    email: 'ventas@xyz.com',
+    supplyType: 'Empaques',
+    category: 'Plásticos'
   },
   {
     id: 3,
-    name: "Proveedora Nacional",
-    contact: "555-9012",
-    email: "info@provnacional.com",
-    supplyType: "Equipamiento",
-    category: "Maquinaria",
-  },
+    name: 'Proveedora Nacional',
+    contact: '555-9012',
+    email: 'info@provnacional.com',
+    supplyType: 'Equipamiento',
+    category: 'Maquinaria'
+  }
 ]
 
 // Datos de ejemplo para historial de compras
 const initialPurchaseHistory = [
-  { id: 1, supplierId: 1, date: "2023-10-15", amount: 1500.0, items: "Harina, Azúcar, Sal" },
-  { id: 2, supplierId: 1, date: "2023-11-20", amount: 2300.0, items: "Harina, Levadura" },
-  { id: 3, supplierId: 2, date: "2023-10-10", amount: 800.0, items: "Bolsas, Cajas" },
-  { id: 4, supplierId: 3, date: "2023-09-05", amount: 12000.0, items: "Batidora Industrial" },
-  { id: 5, supplierId: 2, date: "2023-12-01", amount: 950.0, items: "Etiquetas, Cintas" },
+  { id: 1, supplierId: 1, date: '2023-10-15', amount: 1500.0, items: 'Harina, Azúcar, Sal' },
+  { id: 2, supplierId: 1, date: '2023-11-20', amount: 2300.0, items: 'Harina, Levadura' },
+  { id: 3, supplierId: 2, date: '2023-10-10', amount: 800.0, items: 'Bolsas, Cajas' },
+  { id: 4, supplierId: 3, date: '2023-09-05', amount: 12000.0, items: 'Batidora Industrial' },
+  { id: 5, supplierId: 2, date: '2023-12-01', amount: 950.0, items: 'Etiquetas, Cintas' }
 ]
 
 const ProveedoresPage = () => {
   const [suppliers, setSuppliers] = useState(initialSuppliers)
   const [purchases, setPurchases] = useState(initialPurchaseHistory)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState('')
   const [selectedSupplier, setSelectedSupplier] = useState(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -55,7 +54,7 @@ const ProveedoresPage = () => {
   const filteredSuppliers = suppliers.filter(
     (supplier) =>
       supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.category.toLowerCase().includes(searchTerm.toLowerCase()),
+      supplier.category.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   // Obtener historial de compras para el proveedor seleccionado
@@ -63,14 +62,29 @@ const ProveedoresPage = () => {
     ? purchases.filter((purchase) => purchase.supplierId === selectedSupplier.id)
     : []
 
-  const handleAddSupplier = (newSupplier) => {
-    const id = suppliers.length > 0 ? Math.max(...suppliers.map((s) => s.id)) + 1 : 1
-    setSuppliers([...suppliers, { ...newSupplier, id }])
+  // FUNCION PARA AGREGAR UN PROVEEDOR
+  const handleAddSupplier = async (newSupplier) => {
+    // const id = suppliers.length > 0 ? Math.max(...suppliers.map((s) => s.id)) + 1 : 1
+    // setSuppliers([...suppliers, { ...newSupplier, id }])
     setIsFormOpen(false)
+
+    // try {
+    //   await createProvider(newSupplier).then(console.log('Proveedor guardado'))
+
+    //   const providersResponse = await getAllProviders()
+    //   const providersData = providersResponse.map((item) => item.dataValues);
+    //   console.log('providersData', providersData)
+    // } catch (error) {
+    //   console.log('error al guardar el proveedor', error)
+    // }
+
+    // console.log('newSupplier', newSupplier)
   }
 
   const handleEditSupplier = (updatedSupplier) => {
-    setSuppliers(suppliers.map((supplier) => (supplier.id === updatedSupplier.id ? updatedSupplier : supplier)))
+    setSuppliers(
+      suppliers.map((supplier) => (supplier.id === updatedSupplier.id ? updatedSupplier : supplier))
+    )
     setIsEditing(false)
     setIsFormOpen(false)
     setSelectedSupplier(null)
@@ -142,7 +156,7 @@ const ProveedoresPage = () => {
         )}
 
         {/* Lista de Proveedores */}
-        <div className={`${isFormOpen ? "lg:col-span-2" : "lg:col-span-3"}`}>
+        <div className={`${isFormOpen ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
           <SupplierList
             suppliers={filteredSuppliers}
             onEdit={startEdit}
@@ -168,4 +182,3 @@ const ProveedoresPage = () => {
 }
 
 export default ProveedoresPage
-
