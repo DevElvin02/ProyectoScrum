@@ -19,7 +19,7 @@ const initialSuppliers = [
   {
     id: 2,
     name: 'Insumos XYZ',
-    contact: '555-5678',
+    contact: '123-112',
     email: 'ventas@xyz.com',
     supplyType: 'Empaques',
     category: 'Plásticos'
