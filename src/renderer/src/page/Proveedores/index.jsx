@@ -10,7 +10,7 @@ import { useProvider, PageProvider } from '../context/Proveedores'
 const initialSuppliers = [
   {
     id: 1,
-    name: 'Distribuidora ABC',
+    name: 'Distribuidora ABC111',
     contact: '555-1234',
     email: 'contacto@abc.com',
     supplyType: 'Materias primas',
