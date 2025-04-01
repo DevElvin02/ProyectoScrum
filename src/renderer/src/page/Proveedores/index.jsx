@@ -3,14 +3,13 @@ import { Search, Plus } from 'lucide-react'
 import SupplierForm from '../../components/shared/SupplierForm'
 import SupplierList from '../../components/shared/SupplierList'
 import PurchaseHistory from '../../components/shared/PurchaseHistory'
-
 import { useProvider, PageProvider } from '../context/Proveedores'
 
 // Datos de ejemplo para proveedores
 const initialSuppliers = [
   {
     id: 1,
-    name: 'Distribuidora ABC',
+    name: 'Distribuidora cc',
     contact: '555-1234',
     email: 'contacto@abc.com',
     supplyType: 'Materias primas',
