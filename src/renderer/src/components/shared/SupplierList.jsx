@@ -1,7 +1,14 @@
-"use client"
-import { Edit, Trash2, ShoppingBag } from "lucide-react"
+'use client'
+import { Edit, Trash2, ShoppingBag } from 'lucide-react'
 
-export default function SupplierList({ suppliers, onEdit, onDelete, onViewHistory, selectedSupplierId }) {
+export default function SupplierList({
+  suppliers,
+  onEdit,
+  onDelete,
+  onViewHistory,
+  selectedSupplierId
+}) {
+  console.log('suppliers', suppliers)
   if (suppliers.length === 0) {
     return (
       <div className="bg-white shadow overflow-hidden sm:rounded-lg p-6 text-center">
@@ -49,15 +56,24 @@ export default function SupplierList({ suppliers, onEdit, onDelete, onViewHistor
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
           {suppliers.map((supplier) => (
-            <tr key={supplier.id} className={selectedSupplierId === supplier.id ? "bg-indigo-50" : ""}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{supplier.name}</td>
+            <tr
+              key={supplier.id}
+              className={selectedSupplierId === supplier.id ? 'bg-indigo-50' : ''}
+            >
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                {supplier.name}
+              </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {supplier.contact}
                 <br />
                 <span className="text-xs">{supplier.email}</span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{supplier.supplyType}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{supplier.category}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {supplier.supplyType}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {supplier.category}
+              </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div className="flex space-x-2">
                   <button
@@ -90,4 +106,3 @@ export default function SupplierList({ suppliers, onEdit, onDelete, onViewHistor
     </div>
   )
 }
-

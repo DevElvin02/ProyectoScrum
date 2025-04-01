@@ -4,6 +4,7 @@ import SupplierForm from '../../components/shared/SupplierForm'
 import SupplierList from '../../components/shared/SupplierList'
 import PurchaseHistory from '../../components/shared/PurchaseHistory'
 
+import { useProvider, PageProvider } from '../context/Proveedores'
 
 // Datos de ejemplo para proveedores
 const initialSuppliers = [
@@ -43,6 +44,8 @@ const initialPurchaseHistory = [
 ]
 
 const ProveedoresPage = () => {
+  const { supplysList, addSupply } = useProvider()
+
   const [suppliers, setSuppliers] = useState(initialSuppliers)
   const [purchases, setPurchases] = useState(initialPurchaseHistory)
   const [searchTerm, setSearchTerm] = useState('')
@@ -51,10 +54,10 @@ const ProveedoresPage = () => {
   const [isEditing, setIsEditing] = useState(false)
 
   // Filtrar proveedores basado en término de búsqueda
-  const filteredSuppliers = suppliers.filter(
+  const filteredSuppliers = supplysList.filter(
     (supplier) =>
-      supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      supplier.category.toLowerCase().includes(searchTerm.toLowerCase())
+      supplier.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      supplier.category?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   // Obtener historial de compras para el proveedor seleccionado
@@ -66,19 +69,9 @@ const ProveedoresPage = () => {
   const handleAddSupplier = async (newSupplier) => {
     // const id = suppliers.length > 0 ? Math.max(...suppliers.map((s) => s.id)) + 1 : 1
     // setSuppliers([...suppliers, { ...newSupplier, id }])
+    await addSupply(newSupplier)
     setIsFormOpen(false)
 
-    // try {
-    //   await createProvider(newSupplier).then(console.log('Proveedor guardado'))
-
-    //   const providersResponse = await getAllProviders()
-    //   const providersData = providersResponse.map((item) => item.dataValues);
-    //   console.log('providersData', providersData)
-    // } catch (error) {
-    //   console.log('error al guardar el proveedor', error)
-    // }
-
-    // console.log('newSupplier', newSupplier)
   }
 
   const handleEditSupplier = (updatedSupplier) => {
@@ -181,4 +174,32 @@ const ProveedoresPage = () => {
   )
 }
 
-export default ProveedoresPage
+
+export default function index() {
+  return (
+    <PageProvider>
+      <ProveedoresPage></ProveedoresPage>
+    </PageProvider>
+  )
+}
+
+
+
+
+
+
+
+// export default ProveedoresPage
+
+
+
+
+
+
+
+
+
+
+
+
+

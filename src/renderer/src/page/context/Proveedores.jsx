@@ -26,19 +26,25 @@ export const PageProvider = ({ children }) => {
     }
   }
 
-  const editSupply = async (id, supplyrData) => {
+  const editSupply = async (id, supplierData) => {
     try {
-      await updateProvider(id, supplyrData)
+      await updateProvider(id, supplierData)
       await loadSupplyList()
     } catch (err) {
-      console.log('error al editar el proveedir', err)
+      console.log('error al editar el proveedor', err)
     }
   }
 
   useEffect(() => {
     loadSupplyList()
   }, [])
-  return <PageContext.Provider value={{ supplysList, addSupply }}>{children}</PageContext.Provider>
+  return <ProvidersContext.Provider 
+    value={{ 
+        supplysList,
+         addSupply 
+        }}>
+    {children}
+        </ProvidersContext.Provider>
 }
 
 export const useProvider = () => useContext(ProvidersContext)
