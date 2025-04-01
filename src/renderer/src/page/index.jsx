@@ -6,6 +6,7 @@ import ProductosPage from './productos'
 import PedidosPage from './pedidos'
 import ResumenPage from './resumen/ResumenPage'
 import ProveedoresPage from './Proveedores'
+import OfertasPage from './oferta'
 
 export default function Main() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
@@ -73,6 +74,13 @@ export default function Main() {
             expanded={sidebarOpen}
             onClick={() => navigate('/proveedores')}
           />
+          <NavItem
+            icon={<Truck size={24} />}
+            label="Ofertas"
+            active={location.pathname === '/ofertas'}
+            expanded={sidebarOpen}
+            onClick={() => navigate('/ofertas')}
+          />
         </nav>
       </div>
 
@@ -85,6 +93,7 @@ export default function Main() {
             <Route path="/productos" element={<ProductosPage />} />
             <Route path="/pedidos" element={<PedidosPage />} />
             <Route path="/proveedores" element={<ProveedoresPage />} />
+            <Route path="/ofertas" element={<OfertasPage />} />
           </Routes>
         </div>
       </div>
