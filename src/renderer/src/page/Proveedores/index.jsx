@@ -3,6 +3,7 @@ import { Search, Plus } from 'lucide-react'
 import SupplierForm from '../../components/shared/SupplierForm'
 import SupplierList from '../../components/shared/SupplierList'
 import PurchaseHistory from '../../components/shared/PurchaseHistory'
+import ExportOptions from '../../components/shared/ExportOptions'
 
 import { useProvider, PageProvider } from '../context/Proveedores'
 
@@ -104,17 +105,20 @@ const ProveedoresPage = () => {
     <div className="space-y-6 p-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Registro de Proveedores de Insumos</h2>
-        <button
-          onClick={() => {
-            setIsEditing(false)
-            setSelectedSupplier(null)
-            setIsFormOpen(true)
-          }}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Nuevo Proveedor
-        </button>
+        <div className="flex gap-4">
+          <ExportOptions data={filteredSuppliers} filename="proveedores" />
+          <button
+            onClick={() => {
+              setIsEditing(false)
+              setSelectedSupplier(null)
+              setIsFormOpen(true)
+            }}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Nuevo Proveedor
+          </button>
+        </div>
       </div>
 
       {/* Barra de búsqueda */}
