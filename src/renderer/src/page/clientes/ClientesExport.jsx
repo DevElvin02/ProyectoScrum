@@ -1,29 +1,5 @@
-import ExportOptions from "../../components/shared/ExportOptions"
-import { exportToPDF, exportToExcel } from "../../services/exportService"
-
-// Ejemplo de servicio para clientes
-const guardarCliente = async (cliente) => {
-  try {
-    // Validar datos
-    if (!cliente.nombre || !cliente.email) {
-      throw new Error('Datos incompletos');
-    }
-
-    // Llamar a la base de datos
-    const result = await db.clientes.insert(cliente);
-    
-    // Verificar resultado
-    if (!result) {
-      throw new Error('Error al guardar cliente');
-    }
-
-    return result;
-
-  } catch (error) {
-    console.error('Error:', error);
-    throw error;
-  }
-}
+import ExportOptions from "../../components/shared/ExportOptions";
+import { exportToPDF, exportToExcel } from "../../services/exportService";
 
 const ClientesExport = ({ clientes }) => {
   const columns = [
@@ -32,24 +8,17 @@ const ClientesExport = ({ clientes }) => {
     { header: "Teléfono", accessor: "telefono" },
     { header: "Email", accessor: "email" },
     { header: "Dirección", accessor: "direccion" },
-  ]
+    { header: "Frecuente", accessor: (item) => item.frecuente ? 'Sí' : 'No' }
+  ];
 
   const handleExport = async ({ startDate, endDate, type }) => {
     try {
-      // Verificar si hay datos para exportar
-      if (!clientes || clientes.length === 0) {
-        console.error("No hay datos de clientes para exportar");
-        return;
-      }
-
-      // Limpiar y validar los datos antes de exportar
-      const dataToExport = clientes.map(cliente => ({
-        id: cliente.id || '',
-        nombre: cliente.nombre || '',
-        telefono: cliente.telefono || '',
-        email: cliente.email || '',
-        direccion: cliente.direccion || ''
-      }));
+      const dataToExport = clientes.filter(cliente => {
+        if (!startDate || !endDate) return true;
+        const clienteDate = new Date(cliente.createdAt);
+        return clienteDate >= new Date(startDate) && 
+               clienteDate <= new Date(endDate);
+      });
 
       if (type === "pdf") {
         await exportToPDF(dataToExport, columns, "Listado de Clientes", { startDate, endDate });
@@ -59,10 +28,10 @@ const ClientesExport = ({ clientes }) => {
     } catch (error) {
       console.error("Error al exportar:", error);
     }
-  }
+  };
 
-  return <ExportOptions onExport={handleExport} title="Exportar clientes" />
-}
+  return <ExportOptions onExport={handleExport} title="Exportar Clientes" />;
+};
 
-export default ClientesExport
+export default ClientesExport;
 
