@@ -1,4 +1,3 @@
-
 import { useState, useContext } from 'react'
 import { Plus } from 'lucide-react'
 import { ToastContext } from '../../App'
@@ -8,6 +7,7 @@ import { ActionButtons } from '../../components/shared/ActionButtons'
 import { Dialog } from '../../components/shared/Dialog'
 import { DeleteDialog } from '../../components/shared/DeleteDialog'
 import { FormInput } from '../../components/shared/FormInput'
+import ProductosExport from "./ProductosExport";
 
 // Datos de ejemplo
 const productosIniciales = [
@@ -202,12 +202,15 @@ export default function Productos() {
           onChange={setBusqueda}
           placeholder="Buscar productos..."
         />
-        <button
-          onClick={handleNuevoProducto}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          <Plus className="mr-2 h-4 w-4" /> Nuevo Producto
-        </button>
+        <div className="flex space-x-2">
+          <ProductosExport productos={productosFiltrados} />
+          <button
+            onClick={handleNuevoProducto}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            <Plus className="mr-2 h-4 w-4" /> Nuevo Producto
+          </button>
+        </div>
       </div>
 
       <Table

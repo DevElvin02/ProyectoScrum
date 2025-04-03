@@ -4,6 +4,7 @@ import SupplierForm from '../../components/shared/SupplierForm'
 import SupplierList from '../../components/shared/SupplierList'
 import PurchaseHistory from '../../components/shared/PurchaseHistory'
 import ExportOptions from '../../components/shared/ExportOptions'
+import ProveedoresExport from "./ProveedoresExport";
 
 import { useProvider, PageProvider } from '../context/Proveedores'
 
@@ -102,37 +103,31 @@ const ProveedoresPage = () => {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Registro de Proveedores de Insumos</h2>
-        <div className="flex gap-4">
-          <ExportOptions data={filteredSuppliers} filename="proveedores" />
+        <div className="relative w-64">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Buscar proveedores..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-8 w-full p-2 border border-gray-300 rounded-md"
+          />
+        </div>
+        <div className="flex space-x-2">
+          <ProveedoresExport proveedores={filteredSuppliers} />
           <button
             onClick={() => {
               setIsEditing(false)
               setSelectedSupplier(null)
               setIsFormOpen(true)
             }}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Nuevo Proveedor
+            <Plus className="mr-2 h-4 w-4" /> Nuevo Proveedor
           </button>
         </div>
-      </div>
-
-      {/* Barra de búsqueda */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
-        </div>
-        <input
-          type="text"
-          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          placeholder="Buscar por nombre o categoría..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -186,14 +181,6 @@ export default function index() {
     </PageProvider>
   )
 }
-
-
-
-
-
-
-
-// export default ProveedoresPage
 
 
 

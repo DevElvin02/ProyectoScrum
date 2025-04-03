@@ -4,6 +4,9 @@ import { useState } from "react"
 import { Search, Plus, Eye, Trash2, FileText, Clock, CheckCircle, XCircle } from "lucide-react"
 import { exportToPDF, exportToExcel } from "../../services/exportService"
 import PedidosExport from "./PedidosExport"
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 // Datos de ejemplo para pedidos
 const initialPedidos = [
@@ -60,6 +63,74 @@ const initialPedidos = [
     ],
   },
 ]
+
+export const exportToPDF = (data, columns, title, options = {}) => {
+  const doc = new jsPDF();
+  const { startDate, endDate } = options;
+
+  // Título
+  doc.setFontSize(16);
+  doc.text(title, 14, 15);
+
+  // Fechas del reporte
+  if (startDate && endDate) {
+    doc.setFontSize(10);
+    doc.text(`Período: ${startDate} - ${endDate}`, 14, 25);
+  }
+
+  // Preparar datos para la tabla
+  const tableData = data.map(item => 
+    columns.map(col => {
+      if (typeof col.accessor === 'function') {
+        return col.accessor(item);
+      }
+      return item[col.accessor];
+    })
+  );
+
+  doc.autoTable({
+    head: [columns.map(col => col.header)],
+    body: tableData,
+    startY: startDate && endDate ? 30 : 20,
+    theme: 'grid',
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [63, 81, 181] }
+  });
+
+  doc.save(`${title.toLowerCase().replace(/ /g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+};
+
+export const exportToExcel = (data, columns, title, options = {}) => {
+  const { startDate, endDate } = options;
+
+  // Preparar datos para Excel
+  const excelData = data.map(item => {
+    const row = {};
+    columns.forEach(col => {
+      if (typeof col.accessor === 'function') {
+        row[col.header] = col.accessor(item);
+      } else {
+        row[col.header] = item[col.accessor];
+      }
+    });
+    return row;
+  });
+
+  // Crear libro de trabajo
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(excelData);
+
+  // Agregar metadatos
+  if (startDate && endDate) {
+    XLSX.utils.sheet_add_aoa(ws, 
+      [[`${title} - Período: ${startDate} - ${endDate}`]], 
+      { origin: 'A1' }
+    );
+  }
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Datos');
+  XLSX.writeFile(wb, `${title.toLowerCase().replace(/ /g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`);
+};
 
 const PedidosDashboard = () => {
   const [pedidos, setPedidos] = useState(initialPedidos)

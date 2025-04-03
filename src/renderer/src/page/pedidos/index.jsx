@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Plus, Pencil, Trash2, Search, Eye, ShoppingCart, X, DollarSign, AlertCircle, CreditCard } from "lucide-react"
+import PedidosExport from "./PedidosExport"
 
 // Datos de ejemplo para clientes
 const clientesEjemplo = [
@@ -174,7 +175,7 @@ const pedidosIniciales = [
   },
 ]
 
-function PedidosPage() {
+export default function PedidosPage() {
   // Estados
   const [pedidos, setPedidos] = useState(pedidosIniciales)
   const [pagos, setPagos] = useState(pagosIniciales)
@@ -709,21 +710,24 @@ function PedidosPage() {
       {/* Barra de búsqueda y botón de nuevo pedido */}
       <div className="flex justify-between items-center">
         <div className="relative w-64">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
           <input
             type="text"
             placeholder="Buscar pedidos..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="pl-8 w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800"
+            className="pl-8 w-full p-2 border border-gray-300 rounded-md"
           />
         </div>
-        <button
-          onClick={handleNuevoPedido}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          <Plus className="mr-2 h-4 w-4" /> Nuevo Pedido
-        </button>
+        <div className="flex space-x-2">
+          <PedidosExport pedidos={pedidosFiltrados} />
+          <button
+            onClick={handleNuevoPedido}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            <Plus className="mr-2 h-4 w-4" /> Nuevo Pedido
+          </button>
+        </div>
       </div>
 
       {/* Tabla de pedidos */}
@@ -1042,10 +1046,6 @@ function PedidosPage() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Pagado</p>
-                    <p className="font-medium">${pedidoActual?.pagado.toFixed(2)}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Saldo pendiente</p>
                     <p className="font-medium text-red-600 dark:text-red-400">${pedidoActual?.saldo.toFixed(2)}</p>
                   </div>
                 </div>
@@ -1512,6 +1512,4 @@ function PedidosPage() {
     </div>
   )
 }
-
-export default PedidosPage
 

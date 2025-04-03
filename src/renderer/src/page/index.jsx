@@ -6,7 +6,7 @@ import ProductosPage from './productos'
 import PedidosPage from './pedidos'
 import ResumenPage from './resumen/ResumenPage'
 import ProveedoresPage from './Proveedores'
-import OfertasPage from './oferta'
+import OfertasPage from './Ofertas'
 
 export default function Main() {
   const [sidebarOpen, setSidebarOpen] = useState(true)

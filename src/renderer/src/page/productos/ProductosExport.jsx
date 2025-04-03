@@ -1,33 +1,31 @@
-import ExportOptions from "../../components/shared/ExportOptions"
-import { exportToPDF, exportToExcel } from "../../services/exportService"
+import ExportOptions from "../../components/shared/ExportOptions";
+import { exportToPDF, exportToExcel } from "../../services/exportService";
 
 const ProductosExport = ({ productos }) => {
-  // Columnas para exportación
   const columns = [
     { header: "ID", accessor: "id" },
     { header: "Nombre", accessor: "nombre" },
     { header: "Descripción", accessor: "descripcion" },
-    { header: "Precio", accessor: (item) => formatCurrency(item.precio) },
-    { header: "Stock", accessor: "stock" },
-  ]
+    { header: "Categoría", accessor: "categoria" },
+    { header: "Precio", accessor: (item) => `$${Number(item.precio).toFixed(2)}` },
+    { header: "Stock", accessor: "stock" }
+  ];
 
-  const handleExport = ({ startDate, endDate, type }) => {
-    if (type === "pdf") {
-      exportToPDF(productos, columns, "Catálogo de Productos", { startDate, endDate })
-    } else {
-      exportToExcel(productos, columns, "Catálogo de Productos", { startDate, endDate })
+  const handleExport = ({ type }) => {
+    try {
+      if (type === "pdf") {
+        exportToPDF(productos, columns, "Reporte de Productos");
+      } else {
+        exportToExcel(productos, columns, "Reporte de Productos");
+      }
+    } catch (error) {
+      console.error("Error al exportar:", error);
+      alert("Error al generar el archivo de exportación");
     }
-  }
+  };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("es-MX", {
-      style: "currency",
-      currency: "MXN",
-    }).format(amount)
-  }
+  return <ExportOptions onExport={handleExport} title="Exportar Productos" />;
+};
 
-  return <ExportOptions onExport={handleExport} title="Exportar productos" />
-}
-
-export default ProductosExport
+export default ProductosExport;
 

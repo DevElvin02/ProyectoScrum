@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Search, Plus, Edit, Trash2, Tag, Calendar, PercentCircle, CheckCircle, XCircle } from "lucide-react"
 import ExportOptions from "../../components/shared/ExportOptions"
-// import { exportToPDF, exportToExcel } from "../../services/exportService"
+import { exportToPDF, exportToExcel } from "../../services/exportService"
 import OfertaForm from "./OfertaForm"
 
 // Datos de ejemplo para ofertas
@@ -13,8 +13,8 @@ const initialOfertas = [
     nombre: "Descuento de Verano",
     descripcion: "20% de descuento en todos los productos de temporada",
     porcentaje: 20,
-    fechaInicio: "2023-06-01",
-    fechaFin: "2023-08-31",
+    fechaInicio: "2025-06-01",
+    fechaFin: "2025-08-31",
     estado: "Activa",
     productos: ["Laptop Pro", "Monitor UltraWide", "Teclado Mecánico"],
     condiciones: "Aplica solo para compras en línea",
@@ -24,8 +24,8 @@ const initialOfertas = [
     nombre: "Oferta Flash",
     descripcion: "30% de descuento en periféricos",
     porcentaje: 30,
-    fechaInicio: "2023-12-10",
-    fechaFin: "2023-12-12",
+    fechaInicio: "2025-12-10",
+    fechaFin: "2025-12-12",
     estado: "Activa",
     productos: ["Mouse Inalámbrico", "Teclado Mecánico", "Auriculares Bluetooth"],
     condiciones: "Máximo 2 unidades por cliente",
@@ -35,8 +35,8 @@ const initialOfertas = [
     nombre: "Black Friday",
     descripcion: "Hasta 40% de descuento en productos seleccionados",
     porcentaje: 40,
-    fechaInicio: "2023-11-24",
-    fechaFin: "2023-11-27",
+    fechaInicio: "2025-11-24",
+    fechaFin: "2025-11-27",
     estado: "Inactiva",
     productos: ["Laptop Pro", "Monitor UltraWide", "Auriculares Bluetooth"],
     condiciones: "Hasta agotar existencias",
@@ -46,8 +46,8 @@ const initialOfertas = [
     nombre: "Descuento para Clientes Frecuentes",
     descripcion: "15% de descuento para clientes con más de 5 compras",
     porcentaje: 15,
-    fechaInicio: "2023-01-01",
-    fechaFin: "2023-12-31",
+    fechaInicio: "2025-01-01",
+    fechaFin: "2025-12-31",
     estado: "Activa",
     productos: ["Todos los productos"],
     condiciones: "Cliente debe tener al menos 5 compras previas",
@@ -57,8 +57,8 @@ const initialOfertas = [
     nombre: "Promoción de Lanzamiento",
     descripcion: "25% de descuento en nuevos productos",
     porcentaje: 25,
-    fechaInicio: "2023-10-15",
-    fechaFin: "2023-11-15",
+    fechaInicio: "2025-10-15",
+    fechaFin: "2025-11-15",
     estado: "Inactiva",
     productos: ["Laptop Pro 2023", 'Monitor Curvo 32"'],
     condiciones: "No acumulable con otras promociones",
