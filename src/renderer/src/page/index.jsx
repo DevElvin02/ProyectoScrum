@@ -25,7 +25,7 @@ export default function Main() {
           {sidebarOpen ? (
             <div className="flex items-center justify-between gap-5">
               <div>
-                <h1 className="text-xl font-bold">Sistema Pedido</h1>
+                <h1 className="text-xl font-bold">Sistema Pedido 2025</h1>
               </div>
               <button onClick={toggleSidebar} className="cursor-pointer">
                 <X size={24} />
