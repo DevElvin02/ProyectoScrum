@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import Main from './page'
+import {
+  productosIniciales,
+  clientesIniciales,
+  pedidosIniciales,
+  proveedoresIniciales,
+  ofertasIniciales
+} from './data/initialData.js'
 
 // Contexto para el tema
 export const ThemeContext = React.createContext({
@@ -11,6 +18,15 @@ export const ThemeContext = React.createContext({
 // Contexto para las notificaciones toast
 export const ToastContext = React.createContext({
   toast: () => {}
+})
+
+// Contexto para los datos globales
+export const GlobalDataContext = React.createContext({
+  productos: [],
+  clientes: [],
+  pedidos: [],
+  proveedores: [],
+  ofertas: []
 })
 
 // Componente para manejar el tema claro/oscuro
@@ -70,11 +86,52 @@ function ToastProvider({ children }) {
   )
 }
 
+// Componente para manejar los datos globales
+function GlobalDataProvider({ children }) {
+  const [globalData, setGlobalData] = useState({
+    productos: [],
+    clientes: [],
+    pedidos: [],
+    proveedores: [],
+    ofertas: []
+  })
+
+  useEffect(() => {
+    // Agregar este console.log para depuración
+    console.log('Datos iniciales:', {
+      productosIniciales,
+      clientesIniciales,
+      pedidosIniciales,
+      proveedoresIniciales,
+      ofertasIniciales
+    })
+
+    setGlobalData({
+      productos: productosIniciales,
+      clientes: clientesIniciales,
+      pedidos: pedidosIniciales,
+      proveedores: proveedoresIniciales,
+      ofertas: ofertasIniciales
+    })
+  }, [])
+
+  // Agregar este console.log para verificar el estado
+  console.log('Estado actual:', globalData)
+
+  return (
+    <GlobalDataContext.Provider value={globalData}>
+      {children}
+    </GlobalDataContext.Provider>
+  )
+}
+
 function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <Main />
+        <GlobalDataProvider>
+          <Main />
+        </GlobalDataProvider>
       </ToastProvider>
     </ThemeProvider>
   )

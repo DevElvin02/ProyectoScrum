@@ -1,75 +1,91 @@
 "use client"
-import { X, Users, Package, ShoppingCart, Truck, Home } from "lucide-react"
+import { Link, useLocation } from 'react-router-dom'
+import { useContext } from 'react'
+import { X, Users, Package, ShoppingCart, Truck, Home, Tag, Sun, Moon } from "lucide-react"
+import { GlobalDataContext } from '../App'
+import { ThemeContext } from '../App'
+import { GlobalSearch } from './shared/GlobalSearch'
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
+export function Sidebar() {
+  const globalData = useContext(GlobalDataContext)
+  const { theme, setTheme } = useContext(ThemeContext)
+  const location = useLocation()
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light')
+  }
+
   return (
-    <>
-      {/* Mobile sidebar */}
-      <div className={`fixed inset-0 z-40 md:hidden ${sidebarOpen ? "block" : "hidden"}`}>
-        {/* Background overlay */}
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)}></div>
+    <div className="flex flex-col h-screen">
+      <div className="flex h-16 items-center px-4 border-b border-gray-200 dark:border-gray-700">
+        <Link to="/" className="mr-4">
+          <Home className="h-6 w-6" />
+        </Link>
 
-        {/* Sidebar panel */}
-        <div className="relative flex-1 flex flex-col max-w-xs w-full bg-indigo-700">
-          <div className="absolute top-0 right-0 -mr-12 pt-2">
-            <button
-              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <span className="sr-only">Cerrar sidebar</span>
-              <X className="h-6 w-6 text-white" />
-            </button>
-          </div>
-
-          <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-            <div className="flex-shrink-0 flex items-center px-4">
-              <span className="text-white text-xl font-bold">SGP</span>
-            </div>
-            <nav className="mt-5 px-2 space-y-1">
-              <SidebarLink icon={<Home />} text="Dashboard" active={false} />
-              <SidebarLink icon={<Users />} text="Clientes" active={false} />
-              <SidebarLink icon={<Package />} text="Productos" active={false} />
-              <SidebarLink icon={<ShoppingCart />} text="Pedidos" active={false} />
-              <SidebarLink icon={<Truck />} text="Proveedores" active={true} />
-            </nav>
-          </div>
+        <div className="flex-1 flex justify-center">
+          <GlobalSearch {...globalData} />
         </div>
+
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          title={theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
+        >
+          {theme === 'light' ? (
+            <Moon className="h-5 w-5" />
+          ) : (
+            <Sun className="h-5 w-5" />
+          )}
+        </button>
       </div>
 
-      {/* Static sidebar for desktop */}
-      <div className="hidden md:flex md:flex-shrink-0">
-        <div className="flex flex-col w-64">
-          <div className="flex-1 flex flex-col min-h-0 bg-indigo-700">
-            <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-              <div className="flex items-center flex-shrink-0 px-4">
-                <span className="text-white text-xl font-bold">SGP</span>
-              </div>
-              <nav className="mt-5 flex-1 px-2 space-y-1">
-                <SidebarLink icon={<Home />} text="Dashboard" active={false} />
-                <SidebarLink icon={<Users />} text="Clientes" active={false} />
-                <SidebarLink icon={<Package />} text="Productos" active={false} />
-                <SidebarLink icon={<ShoppingCart />} text="Pedidos" active={false} />
-                <SidebarLink icon={<Truck />} text="Proveedores" active={true} />
-              </nav>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+      <nav className="flex-1 space-y-1 bg-indigo-700 p-4">
+        <SidebarLink 
+          icon={<Package />} 
+          text="Productos" 
+          to="/productos"
+          active={location.pathname.startsWith('/productos')}
+        />
+        <SidebarLink 
+          icon={<Users />} 
+          text="Clientes" 
+          to="/clientes"
+          active={location.pathname.startsWith('/clientes')}
+        />
+        <SidebarLink 
+          icon={<ShoppingCart />} 
+          text="Pedidos" 
+          to="/pedidos"
+          active={location.pathname.startsWith('/pedidos')}
+        />
+        <SidebarLink 
+          icon={<Truck />} 
+          text="Proveedores" 
+          to="/proveedores"
+          active={location.pathname.startsWith('/proveedores')}
+        />
+        <SidebarLink 
+          icon={<Tag />} 
+          text="Ofertas" 
+          to="/ofertas"
+          active={location.pathname.startsWith('/ofertas')}
+        />
+      </nav>
+    </div>
   )
 }
 
-const SidebarLink = ({ icon, text, active }) => {
+const SidebarLink = ({ icon, text, to, active }) => {
   return (
-    <a
-      href="#"
+    <Link
+      to={to}
       className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
         active ? "bg-indigo-800 text-white" : "text-indigo-100 hover:bg-indigo-600"
       }`}
     >
       <div className="mr-3 h-6 w-6">{icon}</div>
       {text}
-    </a>
+    </Link>
   )
 }
 

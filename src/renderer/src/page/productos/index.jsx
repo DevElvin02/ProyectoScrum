@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { Plus } from 'lucide-react'
 import { ToastContext } from '../../App'
 import { SearchBar } from '../../components/shared/SearchBar'
@@ -8,6 +8,7 @@ import { Dialog } from '../../components/shared/Dialog'
 import { DeleteDialog } from '../../components/shared/DeleteDialog'
 import { FormInput } from '../../components/shared/FormInput'
 import ProductosExport from "./ProductosExport";
+import { FavoriteButton } from "../../components/shared/FavoriteButton";
 
 // Datos de ejemplo
 const productosIniciales = [
@@ -94,6 +95,7 @@ export default function Productos() {
   const [dialogoAbierto, setDialogoAbierto] = useState(false)
   const [dialogoEliminar, setDialogoEliminar] = useState(false)
   const { toast } = useContext(ToastContext)
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false)
 
   // Estado para el formulario
   const [formData, setFormData] = useState({
@@ -105,13 +107,21 @@ export default function Productos() {
     categoria: ''
   })
 
-  const productosFiltrados = productos.filter(
-    (producto) =>
+  const productosFiltrados = productos.filter(producto => {
+    const matchSearch = 
       producto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
       producto.descripcion.toLowerCase().includes(busqueda.toLowerCase()) ||
-      producto.categoria.toLowerCase().includes(busqueda.toLowerCase())
-  )
-  
+      producto.categoria.toLowerCase().includes(busqueda.toLowerCase());
+
+    if (showOnlyFavorites) {
+      const favorites = JSON.parse(localStorage.getItem('favoriteProducts')) || [];
+      const isFavorite = favorites.some(fav => fav.id === producto.id);
+      return matchSearch && isFavorite;
+    }
+
+    return matchSearch;
+  });
+
   const handleNuevoProducto = () => {
     setProductoActual(null)
     setFormData({
@@ -197,11 +207,24 @@ export default function Productos() {
   return (
     <div className="space-y-4 overflow-hidden">
       <div className="flex justify-between items-center">
-        <SearchBar 
-          value={busqueda}
-          onChange={setBusqueda}
-          placeholder="Buscar productos..."
-        />
+        <div className="flex items-center gap-4">
+          <SearchBar 
+            value={busqueda}
+            onChange={setBusqueda}
+            placeholder="Buscar productos..."
+          />
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showOnlyFavorites}
+              onChange={(e) => setShowOnlyFavorites(e.target.checked)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-600">
+              Solo favoritos
+            </span>
+          </label>
+        </div>
         <div className="flex space-x-2">
           <ProductosExport productos={productosFiltrados} />
           <button
@@ -224,7 +247,15 @@ export default function Productos() {
     return (
       <tr key={producto.id}>
         <td className="px-6 py-4 whitespace-nowrap text-sm">{producto.id}</td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{producto.nombre}</td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <div className="flex items-center gap-2">
+            <FavoriteButton 
+              id={producto.id}
+              name={producto.nombre}
+            />
+            {producto.nombre}
+          </div>
+        </td>
         <td className="px-6 py-4 whitespace-nowrap text-sm hidden md:table-cell">{producto.descripcion}</td>
         <td className="px-6 py-4 whitespace-nowrap text-sm">{producto.categoria}</td>
         <td className="px-6 py-4 whitespace-nowrap text-sm">${producto.precio.toFixed(2)}</td>
