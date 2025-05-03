@@ -1,12 +1,16 @@
+import { useContext } from 'react'
+import { GlobalDataContext } from '../../App'
 import { BarChart3, DollarSign, Package, ShoppingCart, Users } from "lucide-react"
 
 export default function ResumenPage() {
-  // En una aplicación real, estos datos vendrían de una API
+  const globalData = useContext(GlobalDataContext)
+  
+  // Calcular estadísticas basadas en datos reales
   const stats = {
-    totalClientes: 24,
-    totalProductos: 150,
-    totalPedidos: 89,
-    ingresos: 15680.5,
+    totalClientes: globalData.clientes.length,
+    totalProductos: globalData.productos.length,
+    totalPedidos: globalData.pedidos.length,
+    ingresos: globalData.pedidos.reduce((total, pedido) => total + pedido.total, 0),
   }
 
   return (

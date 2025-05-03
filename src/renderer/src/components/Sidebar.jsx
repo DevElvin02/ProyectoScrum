@@ -1,91 +1,126 @@
 "use client"
-import { Link, useLocation } from 'react-router-dom'
-import { useContext } from 'react'
-import { X, Users, Package, ShoppingCart, Truck, Home, Tag, Sun, Moon } from "lucide-react"
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { X, Users, Package, ShoppingCart, Truck, Home, Tag, Sun, Moon, LogOut, BarChart2 } from "lucide-react"
+import { useContext, useState } from 'react'
 import { GlobalDataContext } from '../App'
 import { ThemeContext } from '../App'
 import { GlobalSearch } from './shared/GlobalSearch'
 
-export function Sidebar() {
-  const globalData = useContext(GlobalDataContext)
-  const { theme, setTheme } = useContext(ThemeContext)
+export function Sidebar({ setIsAuthenticated }) {
   const location = useLocation()
+  const navigate = useNavigate()
 
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light')
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated"); // Elimina el estado de autenticación
+    setIsAuthenticated(false);
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex h-16 items-center px-4 border-b border-gray-200 dark:border-gray-700">
-        <Link to="/" className="mr-4">
-          <Home className="h-6 w-6" />
+    <div className="flex flex-col h-screen bg-indigo-700 text-white w-64">
+      <nav className="flex-1 space-y-1 p-4">
+        <Link 
+          to="/"
+          className={`flex items-center px-4 py-2 rounded-md ${
+            location.pathname === "/" ? "bg-indigo-800" : "hover:bg-indigo-600"
+          }`}
+        >
+          <BarChart2 className="mr-3 h-5 w-5" />
+          Resumen
         </Link>
 
-        <div className="flex-1 flex justify-center">
-          <GlobalSearch {...globalData} />
-        </div>
-
-        <button
-          onClick={toggleTheme}
-          className="p-2 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          title={theme === 'light' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
-        >
-          {theme === 'light' ? (
-            <Moon className="h-5 w-5" />
-          ) : (
-            <Sun className="h-5 w-5" />
-          )}
-        </button>
-      </div>
-
-      <nav className="flex-1 space-y-1 bg-indigo-700 p-4">
-        <SidebarLink 
-          icon={<Package />} 
-          text="Productos" 
+        <Link 
           to="/productos"
-          active={location.pathname.startsWith('/productos')}
-        />
-        <SidebarLink 
-          icon={<Users />} 
-          text="Clientes" 
+          className={`flex items-center px-4 py-2 rounded-md ${
+            location.pathname.startsWith("/productos") ? "bg-indigo-800" : "hover:bg-indigo-600"
+          }`}
+        >
+          <Package className="mr-3 h-5 w-5" />
+          Productos
+        </Link>
+
+        <Link 
           to="/clientes"
-          active={location.pathname.startsWith('/clientes')}
-        />
-        <SidebarLink 
-          icon={<ShoppingCart />} 
-          text="Pedidos" 
+          className={`flex items-center px-4 py-2 rounded-md ${
+            location.pathname.startsWith("/clientes") ? "bg-indigo-800" : "hover:bg-indigo-600"
+          }`}
+        >
+          <Users className="mr-3 h-5 w-5" />
+          Clientes
+        </Link>
+
+        <Link 
           to="/pedidos"
-          active={location.pathname.startsWith('/pedidos')}
-        />
-        <SidebarLink 
-          icon={<Truck />} 
-          text="Proveedores" 
+          className={`flex items-center px-4 py-2 rounded-md ${
+            location.pathname.startsWith("/pedidos") ? "bg-indigo-800" : "hover:bg-indigo-600"
+          }`}
+        >
+          <ShoppingCart className="mr-3 h-5 w-5" />
+          Pedidos
+        </Link>
+
+        <Link 
           to="/proveedores"
-          active={location.pathname.startsWith('/proveedores')}
-        />
-        <SidebarLink 
-          icon={<Tag />} 
-          text="Ofertas" 
+          className={`flex items-center px-4 py-2 rounded-md ${
+            location.pathname.startsWith("/proveedores") ? "bg-indigo-800" : "hover:bg-indigo-600"
+          }`}
+        >
+          <Truck className="mr-3 h-5 w-5" />
+          Proveedores
+        </Link>
+
+        <Link 
           to="/ofertas"
-          active={location.pathname.startsWith('/ofertas')}
-        />
+          className={`flex items-center px-4 py-2 rounded-md ${
+            location.pathname.startsWith("/ofertas") ? "bg-indigo-800" : "hover:bg-indigo-600"
+          }`}
+        >
+          <Tag className="mr-3 h-5 w-5" />
+          Ofertas
+        </Link>
       </nav>
+
+      <button
+        onClick={handleLogout}
+        className="flex items-center px-4 py-2 mt-auto mb-4 mx-4 bg-red-600 text-white rounded-md hover:bg-red-700"
+      >
+        <LogOut className="mr-2 h-5 w-5" />
+        Cerrar Sesión
+      </button>
     </div>
   )
 }
 
-const SidebarLink = ({ icon, text, to, active }) => {
+export const LoginPage = () => {
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError("")
+    setLoading(true)
+
+    try {
+      if (username === "admin" && password === "password123") {
+        localStorage.setItem("currentUser", username)
+        localStorage.setItem("isAuthenticated", "true")
+        // Redirigir al resumen
+        window.location.href = "/"
+      } else {
+        setError("Usuario o contraseña incorrectos")
+      }
+    } catch (err) {
+      setError("Error al iniciar sesión")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <Link
-      to={to}
-      className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-        active ? "bg-indigo-800 text-white" : "text-indigo-100 hover:bg-indigo-600"
-      }`}
-    >
-      <div className="mr-3 h-6 w-6">{icon}</div>
-      {text}
-    </Link>
+    <form onSubmit={handleSubmit}>
+      {/* Form implementation */}
+    </form>
   )
 }
 

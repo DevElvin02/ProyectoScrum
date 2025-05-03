@@ -1,72 +1,60 @@
-import { Routes, Route } from 'react-router-dom'
-import { Link } from 'react-router-dom' // Añadir esta importación
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar'
+import LoginPage from './auth/LoginPage'
+import ResumenPage from './resumen/ResumenPage'
 import Productos from './productos'
 import Clientes from './clientes'
 import Pedidos from './pedidos'
-import Proveedores from './Proveedores'
-import OfertasDashboard from './Ofertas/OfertasDashboard'
+import Proveedores from './proveedores'
+import OfertasDashboard from './ofertas/OfertasDashboard'
 
-export default function Main() {
+function Layout({ setIsAuthenticated }) {
   return (
     <div className="flex h-screen">
-      <Sidebar />
+      <Sidebar setIsAuthenticated={setIsAuthenticated} />
       <div className="flex-1 overflow-auto">
-        <Routes>
-          <Route path="/" element={
-            <div className="p-8">
-              <h1 className="text-2xl font-bold mb-4">Bienvenido al Sistema de Gestión</h1>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Tarjetas de resumen con enlaces */}
-                <Link 
-                  to="/productos" 
-                  className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-                >
-                  <h2 className="text-xl font-semibold mb-2 text-blue-600">Productos</h2>
-                  <p className="text-gray-600">Gestiona tu inventario</p>
-                </Link>
-
-                <Link 
-                  to="/clientes" 
-                  className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-                >
-                  <h2 className="text-xl font-semibold mb-2 text-blue-600">Clientes</h2>
-                  <p className="text-gray-600">Administra tus clientes</p>
-                </Link>
-
-                <Link 
-                  to="/pedidos" 
-                  className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-                >
-                  <h2 className="text-xl font-semibold mb-2 text-blue-600">Pedidos</h2>
-                  <p className="text-gray-600">Control de pedidos</p>
-                </Link>
-
-                <Link 
-                  to="/proveedores" 
-                  className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-                >
-                  <h2 className="text-xl font-semibold mb-2 text-blue-600">Proveedores</h2>
-                  <p className="text-gray-600">Gestión de proveedores</p>
-                </Link>
-
-                <Link 
-                  to="/ofertas" 
-                  className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
-                >
-                  <h2 className="text-xl font-semibold mb-2 text-blue-600">Ofertas</h2>
-                  <p className="text-gray-600">Administra promociones</p>
-                </Link>
-              </div>
-            </div>
-          } />
-          <Route path="/productos" element={<Productos />} />
-          <Route path="/clientes" element={<Clientes />} />
-          <Route path="/pedidos" element={<Pedidos />} />
-          <Route path="/proveedores" element={<Proveedores />} />
-          <Route path="/ofertas" element={<OfertasDashboard />} />
-        </Routes>
+        <Outlet />
       </div>
     </div>
+  )
+}
+
+export default function Main() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    // Limpiar localStorage al iniciar la aplicación
+    localStorage.removeItem("isAuthenticated")
+    localStorage.removeItem("user")
+    localStorage.removeItem("sessionExpiration")
+    localStorage.removeItem("lastActive")
+    setIsAuthenticated(false)
+    setIsLoading(false)
+  }, [])
+
+  if (isLoading) {
+    return null
+  }
+
+  return (
+    <Routes>
+      <Route 
+        path="/login" 
+        element={!isAuthenticated ? <LoginPage setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/" replace />} 
+      />
+      
+      <Route 
+        element={isAuthenticated ? <Layout setIsAuthenticated={setIsAuthenticated} /> : <Navigate to="/login" replace />}
+      >
+        <Route path="/" element={<ResumenPage />} />
+        <Route path="/productos" element={<Productos />} />
+        <Route path="/clientes" element={<Clientes />} />
+        <Route path="/pedidos" element={<Pedidos />} />
+        <Route path="/proveedores" element={<Proveedores />} />
+        <Route path="/ofertas" element={<OfertasDashboard />} />
+      </Route>
+    </Routes>
   )
 }
