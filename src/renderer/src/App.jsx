@@ -7,6 +7,7 @@ import {
   pedidosIniciales,
   proveedoresIniciales,
   ofertasIniciales
+  
 } from './data/initialData.js'
 
 // Contexto para el tema
@@ -27,6 +28,7 @@ export const GlobalDataContext = React.createContext({
   pedidos: [],
   proveedores: [],
   ofertas: []
+  
 })
 
 // Componente para manejar el tema claro/oscuro
